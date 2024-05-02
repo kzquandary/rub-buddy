@@ -18,21 +18,20 @@ servers:
 tags:
   - name: user
     description: Operations about user
-  - name: collector
-    description: Operations about collector
+  - name: transaction
+    description: Operations about transaction
   - name: pickup
     description: Operations about pickup
   - name: chat
     description: Operations about chat
-  - name: tps
-    description: Operations about TPS
+  - name: utils
+    description: Operations about Utils API
 
 paths:
   /login:
     post:
       tags:
         - user
-        - collector
       summary: Login User
       description: User melakukan login menggunakan email dan username, dan mendapatkan response token
       operationId: login
@@ -107,14 +106,21 @@ paths:
               properties:
                 email:
                   type: string
-                username:
-                  type: string
                 password:
                   type: string
+                address:
+                  type: string
+                gender:
+                  type: string
+                  enum:
+                    - Laki-laki
+                    - Perempuan
               example:
                 email: kaze@kzquandary.my.id
                 username: kaze
                 password: kzquandary
+                address: jalan raya cimahi
+                gender: Laki-laki
       responses:
         "200":
           description: OK
@@ -358,7 +364,7 @@ paths:
   /transaction:
     post:
       tags:
-        - collector
+        - transaction
       summary: Create Transaction
       description: Collector melakukan pickup
       operationId: transaction
@@ -370,17 +376,280 @@ paths:
             schema:
               type: object
               required:
-                - pickup_name
-                - pickup_address
-                - pickup_phone
+                - pickup_id
               properties:
-                pickup_name:
-                  type: string
-                pickup_address:
-                  type: string
-                pickup_phone:
+                pickup_id:
                   type: string
               example:
-                pickup_name: kaze
-                pickup_address: jalan raya
-                pickup_phone: 08987654321
+                pickup_request_id: 1234
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+              example:
+                status: true
+                message: Transaction Created
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Transaction Failed
+    get:
+      tags:
+        - transaction
+      summary: Get Transaction
+      description: Collector mendapatkan transaction
+      operationId: getTransaction
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+              example:
+                status: true
+                message: Transaction Found
+                data:
+                  - pickup_transaction_id: 1234
+                    pickup_request_id: 1234
+                    nama: kaze
+                    collector: nurfaid
+                    address: jalan raya cimahi
+                    destination: jalan raya cimahi
+                    pickup_time: 2022-10-10 21:36:21
+                  - pickup_transaction_id: 1234
+                    pickup_request_id: 1234
+                    nama: kaze
+                    collector: nurfaid
+                    address: jalan raya cimahi
+                    destination: jalan raya cimahi
+                    pickup_time: 2022-10-10 21:36:21
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Transaction Failed
+  /transaction/{id}:
+    get:
+      tags:
+        - transaction
+      summary: Get Transaction
+      description: Collector mendapatkan transaction
+      operationId: getTransaction
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 1234
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+              example:
+                status: true
+                message: Transaction Found
+                data:
+                  - pickup_transaction_id: 1234
+                    pickup_request_id: 1234
+                    nama: kaze
+                    collector: nurfaid
+                    address: jalan raya cimahi
+                    destination: jalan raya cimahi
+                    pickup_time: 2022-10-10 21:36:21
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Transaction Failed
+  /chat:
+    post:
+      tags:
+        - chat
+      summary: Create Chat
+      description: User membuat chat
+      operationId: chat
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                transaction_id:
+                  type: string
+                message:
+                  type: string
+              example:
+                message: hello
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+              example:
+                status: true
+                message: Chat Created
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Chat Failed
+  /chat/{pickup_transaction_id}:
+    get:
+      tags:
+        - chat
+      summary: Get Chat
+      description: User mendapatkan chat
+      operationId: getChat
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pickup_transaction_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 1234
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+  /media/upload:
+    post:
+      tags:
+        - utils
+      summary: Upload Image
+      description: User upload media
+      operationId: uploadMedia
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+              example:
+                file: image
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                example:
+                  status: true
+                  message: Media Uploaded
+                  data:
+                    - image_url: http://kzquandary.my.id/image.jpg
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Upload Media Failed
+
