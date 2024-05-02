@@ -1,0 +1,298 @@
+openapi: 3.0.3
+info:
+  title: Kzquandary Mini Project - OpenAPI 3.0
+  description: |-
+    Mini Project for Alterra Academy
+  termsOfService: http://kzquandary.my.id/tos/
+  contact:
+    email: kaze@kzquandary.my.id
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://kzquandary.my.id
+servers:
+  - url: https://miniproject.kzquandary.my.id/api/v1
+tags:
+  - name: user
+    description: Operations about user
+  - name: collector
+    description: Operations about collector
+  - name: pickup
+    description: Operations about pickup
+  - name: chat
+    description: Operations about chat
+  - name: admin
+    description: Operations about Admin
+  - name: tps
+    description: Operations about TPS
+
+paths:
+  /login:
+    post:
+      tags:
+        - user
+        - admin
+        - collector
+      summary: Login User
+      description: User melakukan login menggunakan email dan username, dan mendapatkan response token
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              example:
+                email: kaze@kzquandary.my.id
+                password: kzquandary
+      responses:
+        '200':
+          description: OK
+          content: 
+            application/json:
+              schema:
+               type: object
+               properties:
+                status: 
+                  type: boolean
+                message:
+                  type: string
+                data:
+                  type: array
+                  properties:
+                    token:
+                      type: string
+              example:
+                status: true
+                message: Login Success
+                data:
+                  - token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0MjUxMjI3OTI3NjI3NjQwOSIsImlhdCI6MTY4MzUxMjYyMiwiZXhwIjoxNjgzNTIwNjIyfQ.3Qw6nZ1Nl9L3zKq8UcF8ZI6BjB4sZ9aJ5rSfJY1w7gM
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Invalid email or password
+  /register:
+    post:
+      tags:
+        - user
+      summary: Register User
+      description: User melakukan register menggunakan email dan username, dan mendapatkan response token
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - username
+                - password
+              properties:
+                email:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+              example:
+                email: kaze@kzquandary.my.id
+                username: kaze
+                password: kzquandary
+      responses:
+        '200':
+          description: OK
+          content: 
+            application/json:
+              schema:
+               type: object
+               properties:
+                status: 
+                  type: boolean
+                message:
+                  type: string
+                data:
+                  type: array
+                  properties:
+                    token:
+                      type: string
+              example:
+                status: true
+                message: Register Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Invalid email or password
+  /pickup:
+    post:
+      tags:
+        - pickup
+      summary: Create Pickup
+      description: User membuat pickup
+      operationId: pickup
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - pickup_name
+                - pickup_address
+                - pickup_phone
+              properties:
+                pickup_name:
+                  type: string
+                pickup_address:
+                  type: string
+                pickup_phone:
+                  type: string
+              example:
+                pickup_name: kaze
+                pickup_address: jalan raya
+                pickup_phone: 08987654321
+      responses:
+        '200':
+          description: OK
+          content: 
+            application/json:
+              schema:
+               type: object
+               properties:
+                status: 
+                  type: boolean
+                message:
+                  type: string
+                data:
+                  type: array
+                  properties:
+                    token:
+                      type: string
+              example:
+                status: true
+                message: Pickup Created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Pickup Failed
+  /pickup/{id}:
+    get:
+      tags:
+        - pickup
+      summary: Get Pickup
+      description: User mendapatkan pickup
+      operationId: getPickup
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 1234
+      responses:
+        '200':
+          description: OK
+          content: 
+            application/json:
+              schema:
+               type: object
+               properties:
+                status: 
+                  type: boolean
+                message:
+                  type: string
+                data:
+                  type: array
+              example:
+                status: true
+                message: Pickup Found
+                data:
+                  - pickup_name: kaze
+                    pickup_address: jalan raya
+                    pickup_phone: 08987654321
+                    created_at: 2022-10-10 21:36:21
+                  - pickup_name: kaze
+                    pickup_address: jalan raya
+                    pickup_phone: 08987654321
+                    created_at: 2022-10-10 21:36:21
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Gagal mendapatkan pickup
+  /transaction:
+    get:
+      tags:
+        - collector
+      summary: Get Transaction
+      description: User mendapatkan transaction
+      operationId: getTransaction
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content: 
+            application/json:
+              schema:
+               type: object
+               properties:
+                status: 
+                  type: boolean
+                message:
+                  type: string
+                data:
+                  type: array
+              example:
+
