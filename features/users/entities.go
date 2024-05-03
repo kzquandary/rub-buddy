@@ -1,21 +1,22 @@
 package users
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/labstack/echo/v4"
 )
 
 type User struct {
-	ID        uint      `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
-	Address   string    `json:"address"`
-	Gender    string    `json:"gender"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	DeletedAt time.Time `json:"deleted_at"`
+	ID        uint          `json:"id"`
+	Name      string        `json:"name"`
+	Email     string        `json:"email"`
+	Password  string        `json:"password"`
+	Address   string        `json:"address"`
+	Gender    string        `json:"gender"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
+	DeletedAt *sql.NullTime `json:"deleted_at"`
 }
 
 type UserCredentials struct {
@@ -34,6 +35,7 @@ type UserServiceInterface interface {
 	Register(newUser User) (*User, error)
 	Login(email string, password string) (*UserCredentials, error)
 	GetUser(user *User) error
+	GetUserByEmail(email string) (*User, error)
 	UpdateUser(user *User) error
 }
 

@@ -4,16 +4,16 @@ import (
 	"rub_buddy/configs"
 	"rub_buddy/features/users"
 
-	// echojwt "github.com/labstack/echo-jwt/v4"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
 func RouteUser(e *echo.Echo, uh users.UserHandlerInterface, cfg configs.ProgrammingConfig) {
 	e.POST("/login", uh.Login())
 	e.POST("/register", uh.Register())
-	e.GET("/user", uh.GetUser())
-	e.PUT("/user", uh.UpdateUser())
-	
+	e.GET("/user", uh.GetUser(), echojwt.JWT([]byte(cfg.Secret)))
+	e.PUT("/user", uh.UpdateUser(), echojwt.JWT([]byte(cfg.Secret)))
+
 }
 
 // func PickupRouter(e *echo.Echo, ph pickup.PickupHandlerInterface, cfg configs.ProgrammingConfig) {

@@ -11,8 +11,8 @@ import (
 )
 
 type JWTInterface interface {
-	GenerateJWT(userID uint, role string) map[string]any
-	GenerateToken(id uint, role string) string
+	GenerateJWT(userID uint, role string, email string) (string, error)
+	GenerateToken(id uint, role string, email string) string
 	ExtractToken(token *jwt.Token) map[string]interface{}
 	ValidateToken(token string) (*jwt.Token, error)
 	GetID(c echo.Context) (uint, error)
@@ -29,21 +29,20 @@ func New(signKey string) JWTInterface {
 	}
 }
 
-func (j *JWT) GenerateJWT(userID uint, role string) map[string]any {
-	var result = map[string]any{}
-	var accessToken = j.GenerateToken(userID, role)
+func (j *JWT) GenerateJWT(userID uint, role string, email string) (string, error) {
+	var accessToken = j.GenerateToken(userID, role, email)
 	if accessToken == "" {
-		return nil
+		return "", fmt.Errorf("failed to generate access token")
 	}
-	result["access_token"] = accessToken
 
-	return result
+	return accessToken, nil
 }
 
-func (j *JWT) GenerateToken(id uint, role string) string {
+func (j *JWT) GenerateToken(id uint, role string, email string) string {
 	var claims = jwt.MapClaims{}
 	claims["id"] = id
 	claims["role"] = role
+	claims["email"] = email
 	claims["iat"] = time.Now().Unix()
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
@@ -66,6 +65,7 @@ func (j *JWT) ExtractToken(token *jwt.Token) map[string]interface{} {
 			var result = map[string]interface{}{}
 			result["id"] = mapClaim["id"]
 			result["role"] = mapClaim["role"]
+			result["email"] = mapClaim["email"]
 			return result
 		}
 		logrus.Error("Token Expired")
@@ -113,7 +113,7 @@ func (j *JWT) CheckID(c echo.Context) any {
 	token, err := j.ValidateToken(authHeader)
 	if err != nil {
 		logrus.Info(err)
-		return c.JSON(http.StatusUnauthorized, FormatResponse("Token is not valid", nil))
+		return c.JSON(http.StatusUnauthorized, FormatResponse(false, "Token is not valid", nil))
 	}
 
 	mapClaim := token.Claims.(jwt.MapClaims)

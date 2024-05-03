@@ -32,9 +32,8 @@ func (s *UserService) Login(email string, password string) (*users.UserCredentia
 		return nil, errors.New("Internal server error")
 	}
 
-	token := s.j.GenerateJWT(result.ID, "User")
-
-	if token == nil {
+	token, err := s.j.GenerateJWT(result.ID, "User", result.Email)
+	if err != nil {
 		return nil, errors.New("Internal server error")
 	}
 
@@ -64,4 +63,8 @@ func (s *UserService) UpdateUser(user *users.User) error {
 
 func (s *UserService) GetUser(user *users.User) error {
 	return s.d.GetUser(user)
+}
+
+func (s *UserService) GetUserByEmail(email string) (*users.User, error) {
+	return s.d.GetUserByEmail(email)
 }

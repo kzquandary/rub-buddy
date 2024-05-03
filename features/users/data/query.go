@@ -21,12 +21,11 @@ func New(db *gorm.DB) users.UserDataInterface {
 
 func (data *UserData) Register(newUser users.User) (*users.User, error) {
 	_, err := data.GetUserByEmail(newUser.Email)
-	if err != nil {
+	if err == nil {
 		return nil, errors.New(constant.EmailAlreadyExists)
 	}
 	newUser.CreatedAt = time.Now()
 	newUser.UpdatedAt = time.Now()
-	newUser.DeletedAt = time.Now()
 	return &newUser, data.DB.Create(&newUser).Error
 }
 
@@ -52,7 +51,6 @@ func (data *UserData) Login(email string, password string) (*users.User, error) 
 	result.Address = user.Address
 	result.Gender = user.Gender
 	return result, nil
-
 }
 
 func (data *UserData) GetUser(user *users.User) error {

@@ -27,23 +27,23 @@ func (h *UserHandler) Login() echo.HandlerFunc {
 		var input = new(LoginInput)
 
 		if err := c.Bind(input); err != nil {
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Failed to process request", err.Error()))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, "Failed to process request", nil))
 		}
 
 		user, err := h.s.Login(input.Email, input.Password)
 
 		if err != nil {
 			if strings.Contains(err.Error(), constant.NotFound) {
-				return c.JSON(http.StatusNotFound, helper.FormatResponse("User not found", err.Error()))
+				return c.JSON(http.StatusNotFound, helper.FormatResponse(false, "User not found", nil))
 			}
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Internal server error", err.Error()))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
 		}
 
 		var response = new(LoginResponse)
 		response.ID = user.ID
 		response.Email = user.Email
 		response.Token = user.Token
-		return c.JSON(http.StatusOK, helper.FormatResponse("Login success", response))
+		return c.JSON(http.StatusOK, helper.FormatResponse(true, "Login success", []interface{}{response}))
 
 	}
 }
@@ -52,37 +52,44 @@ func (h *UserHandler) Register() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input = new(RegisterInput)
 		if err := c.Bind(input); err != nil {
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Failed to process request", err.Error()))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, "Failed to process request", nil))
 		}
 		user, err := h.s.Register(users.User{
 			Email:    input.Email,
 			Password: input.Password,
+			Name:     input.Name,
+			Address:  input.Address,
+			Gender:   input.Gender,
 		})
 		if err != nil {
 			if strings.Contains(err.Error(), constant.EmailAlreadyExists) {
-				return c.JSON(http.StatusConflict, helper.FormatResponse("Email already exists", err.Error()))
+				return c.JSON(http.StatusConflict, helper.FormatResponse(false, "Email already exists", nil))
 			}
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Internal server error", err.Error()))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
 		}
 		var response = new(RegisterResponse)
 		response.ID = user.ID
 		response.Email = user.Email
-		return c.JSON(http.StatusCreated, helper.FormatResponse("Register success", response))
+		return c.JSON(http.StatusCreated, helper.FormatResponse(true, "Register success", []interface{}{response}))
 
 	}
 }
 
 func (h *UserHandler) GetUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user := c.Get("user").(*users.User)
-		if err := h.s.GetUser(user); err != nil {
-			if strings.Contains(err.Error(), constant.NotFound) {
-				return c.JSON(http.StatusNotFound, helper.FormatResponse("User not found", err.Error()))
-			}
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Internal server error", err.Error()))
+		tokenString := c.Request().Header.Get("Authorization")
+		c.Logger().Info("Token: ", tokenString)
+		token, err := h.jwt.ValidateToken(tokenString)
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
 		}
-		return c.JSON(http.StatusOK, helper.FormatResponse("Get user success", user))
+		userData := h.jwt.ExtractToken(token)
 
+		userDetails, err := h.s.GetUserByEmail(userData["email"].(string))
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+		}
+		return c.JSON(http.StatusOK, helper.FormatResponse(true, "Get user success", []interface{}{userDetails}))
 	}
 }
 
@@ -90,8 +97,8 @@ func (h *UserHandler) UpdateUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		user := c.Get("user").(*users.User)
 		if err := h.s.UpdateUser(user); err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Internal server error", err.Error()))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
 		}
-		return c.JSON(http.StatusOK, helper.FormatResponse("Update user success", user))
+		return c.JSON(http.StatusOK, helper.FormatResponse(true, "Update user success", []interface{}{user}))
 	}
 }
