@@ -12,22 +12,20 @@ import (
 )
 
 type ProgrammingConfig struct {
-	ServerPort              int
-	DBPort                  uint16
-	DBHost                  string
-	DBUser                  string
-	DBPass                  string
-	DBName                  string
-	Secret                  string
-	OpenAI                  string
-	BaseURLFE               string
+	ServerPort int
+	DBPort     uint16
+	DBHost     string
+	DBUser     string
+	DBPass     string
+	DBName     string
+	Secret     string
+	OpenAI     string
 }
 
 func InitConfig() *ProgrammingConfig {
 	var res = new(ProgrammingConfig)
-	res, errorRes := loadConfig()
+	res, _ = loadConfig()
 
-	logrus.Error(errorRes)
 	if res == nil {
 		logrus.Error("Config : Cannot start program, failed to load configuration")
 		return nil
@@ -43,7 +41,6 @@ func readData() *ProgrammingConfig {
 	if data == nil {
 		err := godotenv.Load(".env")
 		data, errorData := loadConfig()
-
 		fmt.Println(errorData)
 
 		if err != nil || data == nil {
@@ -125,16 +122,9 @@ func loadConfig() (*ProgrammingConfig, error) {
 		error = errors.New("KEY OPEN AI undefined")
 	}
 
-	if val, found := os.LookupEnv("BASE_URL_FE"); found {
-		res.BaseURLFE = val
-	} else {
-		permit = false
-		error = errors.New("Base URL FE undefined")
-	}
-
 	if !permit {
 		return nil, error
-		
+
 		//DEV MODE
 		// return res
 	}

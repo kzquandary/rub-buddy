@@ -1,31 +1,42 @@
 package main
 
 import (
-	"rub_buddy/config"
-	controllers "rub_buddy/controllers/user"
-	"rub_buddy/drivers/postgres"
-	"rub_buddy/drivers/postgres/user"
+	"fmt"
+	"log"
+	"net/http"
+	cfg "rub_buddy/configs"
+	"rub_buddy/helper"
 	"rub_buddy/routes"
-	"rub_buddy/usecases"
+	"rub_buddy/utils/database"
+
+	dataUser "rub_buddy/features/users/data"
+	handlerUser "rub_buddy/features/users/handler"
+	serviceUser "rub_buddy/features/users/service"
 
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
-	config.LoadEnv()
-	config.InitConfigMySQL()
-	db := postgres.ConnectDB(config.InitConfigMySQL())
-
-	e := echo.New()
-
-	userRepo := user.NewUserRepo(db)
-	userUseCase := usecases.NewUserUseCase(userRepo)
-	userController := controllers.NewUserController(userUseCase)
-
-	routes := routes.RouteController{
-		UserController: userController,
+	var config = cfg.InitConfig()
+	db, err := database.InitDB(*config)
+	database.Migrate(db)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	routes.InitRoute(e)
-	e.Logger.Fatal(e.Start(":8080"))
+	e := echo.New()
+	e.GET("/", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "Hello, World!")
+	})
+	jwtInterface := helper.New(config.Secret)
+
+	userModel := dataUser.New(db)
+	userService := serviceUser.New(userModel, jwtInterface)
+	userController := handlerUser.NewHandler(userService, jwtInterface)
+
+	routes.RouteUser(e, userController, *config)
+
+	e.Logger.Debug(db)
+
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.ServerPort)).Error())
 }

@@ -1,10 +1,11 @@
 package service
 
 import (
+	"errors"
+	"rub_buddy/constant"
 	"rub_buddy/features/users"
 	"rub_buddy/helper"
-
-	"github.com/labstack/echo/v4"
+	"strings"
 )
 
 type UserService struct {
@@ -19,11 +20,48 @@ func New(data users.UserDataInterface, jwt helper.JWTInterface) users.UserServic
 	}
 }
 
-func (s *UserService) Register(newUser *users.User) error {
-	checkUser := s.d.GetUser(newUser)
-
-	if checkUser.Email == newUser.Email {
-		return echo.NewHTTPError(400, "Email already registered")
+func (s *UserService) Login(email string, password string) (*users.UserCredentials, error) {
+	result, err := s.d.Login(email, password)
+	if err != nil {
+		if strings.Contains(err.Error(), constant.NotFound) {
+			return nil, errors.New("User not found")
+		}
+		if strings.Contains(err.Error(), constant.IncorrectPassword) {
+			return nil, errors.New("Incorrect password")
+		}
+		return nil, errors.New("Internal server error")
 	}
-	
+
+	token := s.j.GenerateJWT(result.ID, "User")
+
+	if token == nil {
+		return nil, errors.New("Internal server error")
+	}
+
+	response := new(users.UserCredentials)
+	response.ID = result.ID
+	response.Email = result.Email
+	response.Token = token
+	return response, nil
+}
+
+func (s *UserService) Register(user users.User) (*users.User, error) {
+	_, err := s.d.GetUserByEmail(user.Email)
+	if err == nil {
+		return nil, errors.New("User already exists")
+	}
+
+	result, err := s.d.Register(user)
+	if err != nil {
+		return nil, errors.New("Internal server error")
+	}
+	return result, nil
+}
+
+func (s *UserService) UpdateUser(user *users.User) error {
+	return s.d.UpdateUser(user)
+}
+
+func (s *UserService) GetUser(user *users.User) error {
+	return s.d.GetUser(user)
 }
