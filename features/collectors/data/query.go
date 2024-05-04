@@ -68,7 +68,7 @@ func (data *CollectorsData) GetCollector(collector *collectors.Collectors) error
 
 func (data *CollectorsData) UpdateCollector(collector *collectors.Collectors) error {
 	_, err := data.GetCollectorByEmail(collector.Email)
-	if err != nil {
+	if err == nil {
 		return errors.New(constant.EmailAlreadyExists)
 	}
 	result := data.DB.Where("id = ?", collector.ID).Updates(&collector)

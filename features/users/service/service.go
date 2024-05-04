@@ -63,12 +63,10 @@ func (s *UserService) Register(user users.User) (*users.User, error) {
 }
 
 func (s *UserService) UpdateUser(user *users.User) error {
-	
 	return s.d.UpdateUser(user)
 }
 
 func (s *UserService) GetUser(user *users.User) error {
-
 	return s.d.GetUser(user)
 }
 

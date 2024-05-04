@@ -99,7 +99,7 @@ func (h *UserHandler) GetUser() echo.HandlerFunc {
 
 		userDetails, err := h.s.GetUserByEmail(userData["email"].(string))
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 		return c.JSON(http.StatusOK, helper.FormatResponse(true, "Get user success", []interface{}{userDetails}))
 	}
@@ -107,10 +107,47 @@ func (h *UserHandler) GetUser() echo.HandlerFunc {
 
 func (h *UserHandler) UpdateUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user := c.Get("user").(*users.User)
-		if err := h.s.UpdateUser(user); err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+		tokenString := c.Request().Header.Get("Authorization")
+
+		token, err := h.jwt.ValidateToken(tokenString)
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
 		}
-		return c.JSON(http.StatusOK, helper.FormatResponse(true, "Update user success", []interface{}{user}))
+
+		userData := h.jwt.ExtractToken(token)
+
+		var input = new(UpdateUserInput)
+		if err := c.Bind(input); err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, constant.BadRequest, nil))
+		}
+
+		HashedPassword, err := helper.HashPassword(input.Password)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
+		}
+
+		var user = new(users.User)
+		user.ID = userData["id"].(uint)
+		user.Email = input.Email
+		user.Name = input.Name
+		user.Address = input.Address
+		user.Gender = input.Gender
+		user.Password = HashedPassword
+
+		err = h.s.UpdateUser(user)
+		if err != nil {
+			if strings.Contains(err.Error(), constant.EmailAlreadyExists) {
+				return c.JSON(http.StatusConflict, helper.FormatResponse(false, constant.EmailAlreadyExists, nil))
+			}
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
+		}
+
+		var response = new(UserInfoResponse)
+		response.ID = user.ID
+		response.Email = user.Email
+		response.Name = user.Name
+		response.Address = user.Address
+		response.Gender = user.Gender
+		return c.JSON(http.StatusOK, helper.FormatResponse(true, "Update user success", []interface{}{response}))
 	}
 }

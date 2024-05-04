@@ -61,6 +61,10 @@ func (data *UserData) GetUser(user *users.User) error {
 }
 
 func (data *UserData) UpdateUser(user *users.User) error {
+	_, err := data.GetUserByEmail(user.Email)
+	if err == nil {
+		return errors.New(constant.EmailAlreadyExists)
+	}
 	user.UpdatedAt = time.Now()
 	return data.DB.Save(&user).Error
 }
