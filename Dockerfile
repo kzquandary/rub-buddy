@@ -2,13 +2,13 @@ FROM golang:1.22 AS builder
 
 WORKDIR /app
 
-COPY go.mod .
+COPY . .
 
 RUN go mod download
 
-RUN go mod tidy
+RUN go mod verify
 
-COPY . .
+RUN go mod tidy
 
 RUN go build -o main .
 

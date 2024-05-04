@@ -10,12 +10,16 @@ import (
 	"rub_buddy/utils/database"
 
 	dataUser "rub_buddy/features/users/data"
-	serviceUser "rub_buddy/features/users/service"
 	handlerUser "rub_buddy/features/users/handler"
+	serviceUser "rub_buddy/features/users/service"
 
 	dataCollector "rub_buddy/features/collectors/data"
-	serviceCollector "rub_buddy/features/collectors/service"
 	handlerCollector "rub_buddy/features/collectors/handler"
+	serviceCollector "rub_buddy/features/collectors/service"
+
+	dataPickup "rub_buddy/features/pickup_request/data"
+	handlerPickup "rub_buddy/features/pickup_request/handler"
+	servicePickup "rub_buddy/features/pickup_request/service"
 
 	"github.com/labstack/echo/v4"
 )
@@ -42,8 +46,13 @@ func main() {
 	collectorService := serviceCollector.New(collectorModel, jwtInterface)
 	collectorController := handlerCollector.NewHandler(collectorService, jwtInterface)
 
+	pickupModel := dataPickup.New(db)
+	pickupService := servicePickup.New(pickupModel)
+	pickupController := handlerPickup.NewHandler(pickupService, jwtInterface)
+
 	routes.RouteUser(e, userController, *config)
 	routes.RouteCollector(e, collectorController, *config)
+	routes.RoutePickup(e, pickupController, *config)
 
 	e.Logger.Debug(db)
 
