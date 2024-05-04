@@ -4,6 +4,7 @@ import (
 	"errors"
 	"rub_buddy/constant"
 	"rub_buddy/features/users"
+	"rub_buddy/helper"
 	"time"
 
 	"gorm.io/gorm"
@@ -34,13 +35,15 @@ func (data *UserData) Login(email string, password string) (*users.User, error) 
 	user.Email = email
 	user.Password = password
 
-	var query = data.DB.Where("email = ? AND password = ?", user.Email, user.Password).First(user)
+	var UserData = data.DB.Where("email = ?", user.Email).First(user)
+	var userCount int64
+	UserData.Count(&userCount)
 
-	var dataCount int64
-	query.Count(&dataCount)
-
-	if dataCount == 0 {
+	if userCount == 0 {
 		return nil, errors.New(constant.NotFound)
+	}
+	if !helper.CheckPasswordHash(password, user.Password) {
+		return nil, errors.New(constant.IncorrectPassword)
 	}
 
 	var result = new(users.User)

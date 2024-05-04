@@ -63,7 +63,7 @@ func (j *JWT) ExtractToken(token *jwt.Token) map[string]interface{} {
 		if expTime.Time.Compare(time.Now()) > 0 {
 			var mapClaim = claims.(jwt.MapClaims)
 			var result = map[string]interface{}{}
-			result["id"] = mapClaim["id"]
+			result["id"] = uint(mapClaim["id"].(float64))
 			result["role"] = mapClaim["role"]
 			result["email"] = mapClaim["email"]
 			return result
@@ -98,7 +98,7 @@ func (j *JWT) GetID(c echo.Context) (uint, error) {
 	}
 
 	mapClaim := token.Claims.(jwt.MapClaims)
-	idFloat, ok := mapClaim["id"].(float64)
+	idFloat, ok := mapClaim["id"].(uint)
 	if !ok {
 		return 0, fmt.Errorf("ID not found or not a valid number")
 	}

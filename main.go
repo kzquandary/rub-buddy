@@ -13,6 +13,10 @@ import (
 	handlerUser "rub_buddy/features/users/handler"
 	serviceUser "rub_buddy/features/users/service"
 
+	dataCollector "rub_buddy/features/collectors/data"
+	handlerCollector "rub_buddy/features/collectors/handler"
+	serviceCollector "rub_buddy/features/collectors/service"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -34,7 +38,12 @@ func main() {
 	userService := serviceUser.New(userModel, jwtInterface)
 	userController := handlerUser.NewHandler(userService, jwtInterface)
 
+	collectorModel := dataCollector.New(db)
+	collectorService := serviceCollector.New(collectorModel, jwtInterface)
+	collectorController := handlerCollector.NewHandler(collectorService, jwtInterface)
+
 	routes.RouteUser(e, userController, *config)
+	routes.RouteCollector(e, collectorController, *config)
 
 	e.Logger.Debug(db)
 

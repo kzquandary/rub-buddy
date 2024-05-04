@@ -25,7 +25,7 @@ func NewHandler(s users.UserServiceInterface, jwt helper.JWTInterface) *UserHand
 func (h *UserHandler) Login() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input = new(LoginInput)
-
+		
 		if err := c.Bind(input); err != nil {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, "Failed to process request", nil))
 		}
@@ -54,9 +54,13 @@ func (h *UserHandler) Register() echo.HandlerFunc {
 		if err := c.Bind(input); err != nil {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, "Failed to process request", nil))
 		}
+		HashedPassword, err := helper.HashPassword(input.Password)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+		}
 		user, err := h.s.Register(users.User{
 			Email:    input.Email,
-			Password: input.Password,
+			Password: HashedPassword,
 			Name:     input.Name,
 			Address:  input.Address,
 			Gender:   input.Gender,
@@ -78,7 +82,7 @@ func (h *UserHandler) Register() echo.HandlerFunc {
 func (h *UserHandler) GetUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tokenString := c.Request().Header.Get("Authorization")
-		c.Logger().Info("Token: ", tokenString)
+
 		token, err := h.jwt.ValidateToken(tokenString)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))

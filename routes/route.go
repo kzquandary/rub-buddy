@@ -2,6 +2,7 @@ package routes
 
 import (
 	"rub_buddy/configs"
+	"rub_buddy/features/collectors"
 	"rub_buddy/features/users"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -9,11 +10,18 @@ import (
 )
 
 func RouteUser(e *echo.Echo, uh users.UserHandlerInterface, cfg configs.ProgrammingConfig) {
-	e.POST("/login", uh.Login())
-	e.POST("/register", uh.Register())
-	e.GET("/user", uh.GetUser(), echojwt.JWT([]byte(cfg.Secret)))
-	e.PUT("/user", uh.UpdateUser(), echojwt.JWT([]byte(cfg.Secret)))
+	e.POST("/users/login", uh.Login())
+	e.POST("/users/register", uh.Register())
+	e.GET("/users", uh.GetUser(), echojwt.JWT([]byte(cfg.Secret)))
+	e.PUT("/users", uh.UpdateUser(), echojwt.JWT([]byte(cfg.Secret)))
 
+}
+
+func RouteCollector(e *echo.Echo, ch collectors.CollectorHandlerInterface, cfg configs.ProgrammingConfig) {
+	e.POST("/collectors/login", ch.Login())
+	e.POST("/collectors/register", ch.Register())
+	e.GET("/collectors", ch.GetCollector(), echojwt.JWT([]byte(cfg.Secret)))
+	e.PUT("/collectors", ch.UpdateCollector(), echojwt.JWT([]byte(cfg.Secret)))
 }
 
 // func PickupRouter(e *echo.Echo, ph pickup.PickupHandlerInterface, cfg configs.ProgrammingConfig) {

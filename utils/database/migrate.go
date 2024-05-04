@@ -1,7 +1,7 @@
 package database
 
 import (
-	DataCollector "rub_buddy/features/collector"
+	DataCollector "rub_buddy/features/collectors"
 	DataUsers "rub_buddy/features/users"
 
 	"gorm.io/gorm"
@@ -9,6 +9,6 @@ import (
 
 func Migrate(db *gorm.DB) error {
 	db.AutoMigrate(DataUsers.User{})
-	db.AutoMigrate(DataCollector.Collector{})
+	db.AutoMigrate(DataCollector.Collectors{})
 	return nil
 }
