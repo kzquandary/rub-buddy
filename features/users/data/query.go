@@ -85,5 +85,7 @@ func (data *UserData) GetUserByEmail(email string) (*users.User, error) {
 	result.Password = user.Password
 	result.Address = user.Address
 	result.Gender = user.Gender
+	result.CreatedAt = user.CreatedAt
+	result.UpdatedAt = user.UpdatedAt
 	return result, nil
 }

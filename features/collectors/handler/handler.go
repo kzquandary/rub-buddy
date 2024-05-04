@@ -125,17 +125,21 @@ func (h *CollectorHandler) UpdateCollector() echo.HandlerFunc {
 func (h *CollectorHandler) GetCollector() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tokenString := c.Request().Header.Get("Authorization")
-		c.Logger().Info("Token: ", tokenString)
+
 		token, err := h.j.ValidateToken(tokenString)
+
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
 		}
+
 		collectorData := h.j.ExtractToken(token)
 
 		collectorDetails, err := h.s.GetCollectorByEmail(collectorData["email"].(string))
+		
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
 		}
+
 		return c.JSON(http.StatusOK, helper.FormatResponse(true, "Get collector success", []interface{}{collectorDetails}))
 	}
 }

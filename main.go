@@ -10,12 +10,12 @@ import (
 	"rub_buddy/utils/database"
 
 	dataUser "rub_buddy/features/users/data"
-	handlerUser "rub_buddy/features/users/handler"
 	serviceUser "rub_buddy/features/users/service"
+	handlerUser "rub_buddy/features/users/handler"
 
 	dataCollector "rub_buddy/features/collectors/data"
-	handlerCollector "rub_buddy/features/collectors/handler"
 	serviceCollector "rub_buddy/features/collectors/service"
+	handlerCollector "rub_buddy/features/collectors/handler"
 
 	"github.com/labstack/echo/v4"
 )

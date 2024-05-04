@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 	"rub_buddy/constant"
 	"rub_buddy/features/users"
@@ -25,7 +26,7 @@ func NewHandler(s users.UserServiceInterface, jwt helper.JWTInterface) *UserHand
 func (h *UserHandler) Login() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input = new(LoginInput)
-		
+
 		if err := c.Bind(input); err != nil {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, "Failed to process request", nil))
 		}
@@ -35,6 +36,9 @@ func (h *UserHandler) Login() echo.HandlerFunc {
 		if err != nil {
 			if strings.Contains(err.Error(), constant.NotFound) {
 				return c.JSON(http.StatusNotFound, helper.FormatResponse(false, "User not found", nil))
+			}
+			if strings.Contains(err.Error(), constant.EmailAndPasswordCannotBeEmpty) {
+				return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, "Email and password cannot be empty", nil))
 			}
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
 		}
@@ -82,11 +86,15 @@ func (h *UserHandler) Register() echo.HandlerFunc {
 func (h *UserHandler) GetUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tokenString := c.Request().Header.Get("Authorization")
-
+		log.Println("Token:", tokenString)
+		if tokenString == "" {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
+		}
 		token, err := h.jwt.ValidateToken(tokenString)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
 		}
+
 		userData := h.jwt.ExtractToken(token)
 
 		userDetails, err := h.s.GetUserByEmail(userData["email"].(string))
