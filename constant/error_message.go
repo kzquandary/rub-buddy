@@ -1,7 +1,9 @@
 package constant
 
+const UserNotFound = "User not found"
 const NotFound = "Not Found"
 const IncorrectPassword = "Incorrect Password"
+const BadRequest = "Bad Request"
 const ProccessFailed = "Process Failed"
 const InternalServerError = "Internal Server Error"
 const Success = "Success"

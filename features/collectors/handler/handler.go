@@ -27,12 +27,12 @@ func (h *CollectorHandler) Register() echo.HandlerFunc {
 		var input = new(RegisterInput)
 		err := c.Bind(input)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 
 		HashedPassword, err := helper.HashPassword(input.Password)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 
 		collector, err := h.s.Register(collectors.Collectors{
@@ -43,9 +43,9 @@ func (h *CollectorHandler) Register() echo.HandlerFunc {
 		})
 		if err != nil {
 			if strings.Contains(err.Error(), constant.EmailAlreadyExists) {
-				return c.JSON(http.StatusConflict, helper.FormatResponse(false, "Email already exists", nil))
+				return c.JSON(http.StatusConflict, helper.FormatResponse(false, constant.EmailAlreadyExists, nil))
 			}
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 
 		var response = new(RegisterResponse)
@@ -62,16 +62,16 @@ func (h *CollectorHandler) Login() echo.HandlerFunc {
 		err := c.Bind(input)
 
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 
 		collector, err := h.s.Login(input.Email, input.Password)
 
 		if err != nil {
 			if strings.Contains(err.Error(), constant.NotFound) {
-				return c.JSON(http.StatusNotFound, helper.FormatResponse(false, "User not found", nil))
+				return c.JSON(http.StatusNotFound, helper.FormatResponse(false, constant.UserNotFound, nil))
 			}
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "A Internal server error", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 
 		var response = new(LoginResponse)
@@ -97,7 +97,7 @@ func (h *CollectorHandler) UpdateCollector() echo.HandlerFunc {
 
 		err = c.Bind(input)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 
 		HashedPassword, err := helper.HashPassword(input.Password)
@@ -110,7 +110,10 @@ func (h *CollectorHandler) UpdateCollector() echo.HandlerFunc {
 
 		err = h.s.UpdateCollector(collector)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+			if strings.Contains(err.Error(), constant.EmailAlreadyExists) {
+				return c.JSON(http.StatusConflict, helper.FormatResponse(false, constant.EmailAlreadyExists, nil))
+			}
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 
 		var response = new(CollectorInfoResponse)
@@ -135,9 +138,9 @@ func (h *CollectorHandler) GetCollector() echo.HandlerFunc {
 		collectorData := h.j.ExtractToken(token)
 
 		collectorDetails, err := h.s.GetCollectorByEmail(collectorData["email"].(string))
-		
+
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 
 		return c.JSON(http.StatusOK, helper.FormatResponse(true, "Get collector success", []interface{}{collectorDetails}))

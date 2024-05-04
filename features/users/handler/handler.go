@@ -28,19 +28,19 @@ func (h *UserHandler) Login() echo.HandlerFunc {
 		var input = new(LoginInput)
 
 		if err := c.Bind(input); err != nil {
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, "Failed to process request", nil))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, constant.BadRequest, nil))
 		}
 
 		user, err := h.s.Login(input.Email, input.Password)
 
 		if err != nil {
 			if strings.Contains(err.Error(), constant.NotFound) {
-				return c.JSON(http.StatusNotFound, helper.FormatResponse(false, "User not found", nil))
+				return c.JSON(http.StatusNotFound, helper.FormatResponse(false, constant.UserNotFound, nil))
 			}
 			if strings.Contains(err.Error(), constant.EmailAndPasswordCannotBeEmpty) {
-				return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, "Email and password cannot be empty", nil))
+				return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, constant.EmailAndPasswordCannotBeEmpty, nil))
 			}
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 
 		var response = new(LoginResponse)
@@ -56,11 +56,11 @@ func (h *UserHandler) Register() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input = new(RegisterInput)
 		if err := c.Bind(input); err != nil {
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, "Failed to process request", nil))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, constant.BadRequest, nil))
 		}
 		HashedPassword, err := helper.HashPassword(input.Password)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 		user, err := h.s.Register(users.User{
 			Email:    input.Email,
@@ -71,9 +71,9 @@ func (h *UserHandler) Register() echo.HandlerFunc {
 		})
 		if err != nil {
 			if strings.Contains(err.Error(), constant.EmailAlreadyExists) {
-				return c.JSON(http.StatusConflict, helper.FormatResponse(false, "Email already exists", nil))
+				return c.JSON(http.StatusConflict, helper.FormatResponse(false, constant.EmailAlreadyExists, nil))
 			}
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, "Internal server error", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 		var response = new(RegisterResponse)
 		response.ID = user.ID
