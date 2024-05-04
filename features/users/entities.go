@@ -24,6 +24,7 @@ type UserCredentials struct {
 	Email string `json:"email"`
 	Token any    `json:"token"`
 }
+
 type UserHandlerInterface interface {
 	Register() echo.HandlerFunc
 	Login() echo.HandlerFunc

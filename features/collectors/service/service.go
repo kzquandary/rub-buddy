@@ -6,6 +6,7 @@ import (
 	"rub_buddy/features/collectors"
 	"rub_buddy/helper"
 	"strings"
+	"time"
 )
 
 type CollectorService struct {
@@ -59,6 +60,7 @@ func (s *CollectorService) Login(email string, password string) (*collectors.Col
 }
 
 func (s *CollectorService) UpdateCollector(collector *collectors.Collectors) error {
+	collector.UpdatedAt = time.Now()
 	return s.d.UpdateCollector(collector)
 }
 

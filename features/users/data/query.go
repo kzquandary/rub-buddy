@@ -61,6 +61,10 @@ func (data *UserData) GetUser(user *users.User) error {
 }
 
 func (data *UserData) UpdateUser(user *users.User) error {
+	_, err := data.GetUserByEmail(user.Email)
+	if err == nil {
+		return errors.New(constant.EmailAlreadyExists)
+	}
 	user.UpdatedAt = time.Now()
 	return data.DB.Save(&user).Error
 }
@@ -85,5 +89,7 @@ func (data *UserData) GetUserByEmail(email string) (*users.User, error) {
 	result.Password = user.Password
 	result.Address = user.Address
 	result.Gender = user.Gender
+	result.CreatedAt = user.CreatedAt
+	result.UpdatedAt = user.UpdatedAt
 	return result, nil
 }

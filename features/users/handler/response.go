@@ -12,5 +12,9 @@ type LoginResponse struct {
 }
 
 type UserInfoResponse struct {
-	Data any `json:"data"`
+	ID       uint   `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Address  string `json:"address"`
+	Gender   string `json:"gender"`
 }
