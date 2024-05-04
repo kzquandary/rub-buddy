@@ -4,7 +4,6 @@ type RegisterInput struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	Address  string `json:"address"`
 	Gender   string `json:"gender"`
 }
 
@@ -13,10 +12,9 @@ type LoginInput struct {
 	Password string `json:"password"`
 }
 
-type UpdateUserInput struct {
+type UpdateCollectorInput struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	Address  string `json:"address"`
 	Gender   string `json:"gender"`
 }

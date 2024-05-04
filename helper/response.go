@@ -1,10 +1,10 @@
 package helper
 
-func FormatResponse(message string, data any) map[string]any {
-	var response = map[string]any{}
-	response["message"] = message
-	if data != nil {
-		response["data"] = data
+func FormatResponse(status bool, message string, data []interface{}) map[string]interface{} {
+	response := map[string]interface{}{
+		"status":  status,
+		"message": message,
+		"data":    data,
 	}
 	return response
 }
