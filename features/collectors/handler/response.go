@@ -11,6 +11,11 @@ type LoginResponse struct {
 	Token any    `json:"token"`
 }
 
-type UserInfoResponse struct {
-	Data any `json:"data"`
+type CollectorInfoResponse struct {
+	ID     uint   `json:"id"`
+	Email  string `json:"email"`
+	Name   string `json:"name"`
+	Gender string `json:"gender"`
 }
+
+

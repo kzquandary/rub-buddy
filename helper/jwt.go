@@ -11,8 +11,8 @@ import (
 )
 
 type JWTInterface interface {
-	GenerateJWT(userID uint) map[string]any
-	GenerateToken(id uint) string
+	GenerateJWT(userID uint, role string, email string) (string, error)
+	GenerateToken(id uint, role string, email string) string
 	ExtractToken(token *jwt.Token) map[string]interface{}
 	ValidateToken(token string) (*jwt.Token, error)
 	GetID(c echo.Context) (uint, error)
@@ -20,29 +20,29 @@ type JWTInterface interface {
 }
 
 type JWT struct {
-	signKey    string
+	signKey string
 }
 
 func New(signKey string) JWTInterface {
 	return &JWT{
-		signKey:    signKey,
+		signKey: signKey,
 	}
 }
 
-func (j *JWT) GenerateJWT(userID uint) map[string]any {
-	var result = map[string]any{}
-	var accessToken = j.GenerateToken(userID)
+func (j *JWT) GenerateJWT(userID uint, role string, email string) (string, error) {
+	var accessToken = j.GenerateToken(userID, role, email)
 	if accessToken == "" {
-		return nil
+		return "", fmt.Errorf("failed to generate access token")
 	}
-	result["access_token"] = accessToken
 
-	return result
+	return accessToken, nil
 }
 
-func (j *JWT) GenerateToken(id uint) string {
+func (j *JWT) GenerateToken(id uint, role string, email string) string {
 	var claims = jwt.MapClaims{}
 	claims["id"] = id
+	claims["role"] = role
+	claims["email"] = email
 	claims["iat"] = time.Now().Unix()
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
@@ -56,7 +56,6 @@ func (j *JWT) GenerateToken(id uint) string {
 	return validToken
 }
 
-
 func (j *JWT) ExtractToken(token *jwt.Token) map[string]interface{} {
 	if token.Valid {
 		var claims = token.Claims
@@ -64,9 +63,9 @@ func (j *JWT) ExtractToken(token *jwt.Token) map[string]interface{} {
 		if expTime.Time.Compare(time.Now()) > 0 {
 			var mapClaim = claims.(jwt.MapClaims)
 			var result = map[string]interface{}{}
-			result["id"] = mapClaim["id"]
+			result["id"] = uint(mapClaim["id"].(float64))
 			result["role"] = mapClaim["role"]
-			result["status"] = mapClaim["status"]
+			result["email"] = mapClaim["email"]
 			return result
 		}
 		logrus.Error("Token Expired")
@@ -99,7 +98,7 @@ func (j *JWT) GetID(c echo.Context) (uint, error) {
 	}
 
 	mapClaim := token.Claims.(jwt.MapClaims)
-	idFloat, ok := mapClaim["id"].(float64)
+	idFloat, ok := mapClaim["id"].(uint)
 	if !ok {
 		return 0, fmt.Errorf("ID not found or not a valid number")
 	}
@@ -114,7 +113,7 @@ func (j *JWT) CheckID(c echo.Context) any {
 	token, err := j.ValidateToken(authHeader)
 	if err != nil {
 		logrus.Info(err)
-		return c.JSON(http.StatusUnauthorized, FormatResponse("Token is not valid", nil))
+		return c.JSON(http.StatusUnauthorized, FormatResponse(false, "Token is not valid", nil))
 	}
 
 	mapClaim := token.Claims.(jwt.MapClaims)
