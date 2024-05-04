@@ -21,7 +21,12 @@ func New(data users.UserDataInterface, jwt helper.JWTInterface) users.UserServic
 }
 
 func (s *UserService) Login(email string, password string) (*users.UserCredentials, error) {
+	if email == "" || password == "" {
+		return nil, errors.New(constant.EmailAndPasswordCannotBeEmpty)
+	}
+
 	result, err := s.d.Login(email, password)
+	
 	if err != nil {
 		if strings.Contains(err.Error(), constant.NotFound) {
 			return nil, errors.New("User not found")
