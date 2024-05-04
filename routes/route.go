@@ -3,6 +3,7 @@ package routes
 import (
 	"rub_buddy/configs"
 	"rub_buddy/features/collectors"
+	pickup "rub_buddy/features/pickup_request"
 	"rub_buddy/features/users"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -24,12 +25,12 @@ func RouteCollector(e *echo.Echo, ch collectors.CollectorHandlerInterface, cfg c
 	e.PUT("/collectors", ch.UpdateCollector(), echojwt.JWT([]byte(cfg.Secret)))
 }
 
-// func PickupRouter(e *echo.Echo, ph pickup.PickupHandlerInterface, cfg configs.ProgrammingConfig) {
-// 	e.POST("/pickup", ph.Pickup(), echojwt.JWT([]byte(cfg.Secret)))
-// 	e.GET("/pickup", ph.GetPickup(), echojwt.JWT([]byte(cfg.Secret)))
-// 	e.GET("/pickup/{id}", ph.GetPickupByID(), echojwt.JWT([]byte(cfg.Secret)))
-// 	e.DELETE("/pickup/{id}", ph.DeletePickup(), echojwt.JWT([]byte(cfg.Secret)))
-// }
+func RoutePickup(e *echo.Echo, ph pickup.PickupRequestHandlerInterface, cfg configs.ProgrammingConfig) {
+	e.POST("/pickup", ph.CreatePickupRequest(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/pickup", ph.GetAllPickupRequest(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/pickup/:id", ph.GetPickupRequestByID(), echojwt.JWT([]byte(cfg.Secret)))
+	e.DELETE("/pickup/:id", ph.DeletePickupRequestByID(), echojwt.JWT([]byte(cfg.Secret)))
+}
 
 // func TransactionRouter(e *echo.Echo, th transaction.TransactionHandlerInterface, cfg configs.ProgrammingConfig) {
 // 	e.POST("/transaction", th.Transaction(), echojwt.JWT([]byte(cfg.Secret)))
