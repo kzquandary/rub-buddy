@@ -47,7 +47,7 @@ func (s *CollectorService) Login(email string, password string) (*collectors.Col
 		return nil, errors.New("Internal server error")
 	}
 
-	token, err := s.j.GenerateJWT(result.ID, "Collector", result.Email)
+	token, err := s.j.GenerateJWT(result.ID, "Collector", result.Email, "")
 	if err != nil {
 		return nil, errors.New("Internal server error")
 	}

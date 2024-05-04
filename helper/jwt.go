@@ -11,8 +11,8 @@ import (
 )
 
 type JWTInterface interface {
-	GenerateJWT(userID uint, role string, email string) (string, error)
-	GenerateToken(id uint, role string, email string) string
+	GenerateJWT(userID uint, role string, email string, address string) (string, error)
+	GenerateToken(id uint, role string, email string, address string) string
 	ExtractToken(token *jwt.Token) map[string]interface{}
 	ValidateToken(token string) (*jwt.Token, error)
 	GetID(c echo.Context) (uint, error)
@@ -29,8 +29,8 @@ func New(signKey string) JWTInterface {
 	}
 }
 
-func (j *JWT) GenerateJWT(userID uint, role string, email string) (string, error) {
-	var accessToken = j.GenerateToken(userID, role, email)
+func (j *JWT) GenerateJWT(userID uint, role string, email string, address string) (string, error) {
+	var accessToken = j.GenerateToken(userID, role, email, address)
 	if accessToken == "" {
 		return "", fmt.Errorf("failed to generate access token")
 	}
@@ -38,11 +38,12 @@ func (j *JWT) GenerateJWT(userID uint, role string, email string) (string, error
 	return accessToken, nil
 }
 
-func (j *JWT) GenerateToken(id uint, role string, email string) string {
+func (j *JWT) GenerateToken(id uint, role string, email string, address string) string {
 	var claims = jwt.MapClaims{}
 	claims["id"] = id
 	claims["role"] = role
 	claims["email"] = email
+	claims["address"] = address
 	claims["iat"] = time.Now().Unix()
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
@@ -65,6 +66,7 @@ func (j *JWT) ExtractToken(token *jwt.Token) map[string]interface{} {
 			var result = map[string]interface{}{}
 			result["id"] = uint(mapClaim["id"].(float64))
 			result["role"] = mapClaim["role"]
+			result["address"] = mapClaim["address"]
 			result["email"] = mapClaim["email"]
 			return result
 		}

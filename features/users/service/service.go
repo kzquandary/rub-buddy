@@ -37,7 +37,7 @@ func (s *UserService) Login(email string, password string) (*users.UserCredentia
 		return nil, errors.New("Internal server error")
 	}
 
-	token, err := s.j.GenerateJWT(result.ID, "User", result.Email)
+	token, err := s.j.GenerateJWT(result.ID, "User", result.Email, result.Address)
 	if err != nil {
 		return nil, errors.New("Internal server error")
 	}
