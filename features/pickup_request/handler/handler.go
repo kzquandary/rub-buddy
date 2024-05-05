@@ -63,7 +63,7 @@ func (h *PickupRequestHandler) GetAllPickupRequest() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tokenString := c.Request().Header.Get("Authorization")
 		token, err := h.j.ValidateToken(tokenString)
-		log.Print(token)
+		
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
 		}
