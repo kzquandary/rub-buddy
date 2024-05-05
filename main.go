@@ -39,12 +39,12 @@ func main() {
 		return c.JSON(http.StatusOK, "Hello, World!")
 	})
 	jwtInterface := helper.New(config.Secret)
-	
+
 	bucketInterface, err := bucket.New(config.ProjectID, config.BucketName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	userModel := dataUser.New(db)
 	userService := serviceUser.New(userModel, jwtInterface)
 	userController := handlerUser.NewHandler(userService, jwtInterface)
@@ -63,5 +63,5 @@ func main() {
 	routes.RouteMedia(e, bucketInterface)
 	e.Logger.Debug(db)
 
-	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.ServerPort)).Error())
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", 8080)).Error())
 }
