@@ -4,6 +4,7 @@ import (
 	"rub_buddy/configs"
 	"rub_buddy/features/collectors"
 	pickup "rub_buddy/features/pickup_request"
+	pickuptransaction "rub_buddy/features/pickup_transaction"
 	"rub_buddy/features/users"
 	bucket "rub_buddy/utils/bucket"
 
@@ -33,24 +34,20 @@ func RoutePickup(e *echo.Echo, ph pickup.PickupRequestHandlerInterface, cfg conf
 	e.DELETE("/pickup/:id", ph.DeletePickupRequestByID(), echojwt.JWT([]byte(cfg.Secret)))
 }
 
-func RouteMedia(e *echo.Echo, b bucket.BucketInterface) {
-	e.POST("/media/upload", b.UploadFileHandler())
+func RouteTransaction(e *echo.Echo, th pickuptransaction.PickupTransactionHandlerInterface, cfg configs.ProgrammingConfig) {
+	e.POST("/transaction", th.CreatePickupTransaction(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/transaction", th.GetAllPickupTransaction(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/transaction/:id", th.GetPickupTransactionByID(), echojwt.JWT([]byte(cfg.Secret)))
 }
-
-// func TransactionRouter(e *echo.Echo, th transaction.TransactionHandlerInterface, cfg configs.ProgrammingConfig) {
-// 	e.POST("/transaction", th.Transaction(), echojwt.JWT([]byte(cfg.Secret)))
-// 	e.GET("/transaction", th.GetTransaction(), echojwt.JWT([]byte(cfg.Secret)))
-// 	e.GET("/transaction/{id}", th.GetTransactionByID(), echojwt.JWT([]byte(cfg.Secret)))
-// }
 
 // func ChatRouter(e *echo.Echo, ch chat.ChatHandlerInterface, cfg configs.ProgrammingConfig) {
 // 	e.POST("/chat", ch.Chat(), echojwt.JWT([]byte(cfg.Secret)))
 // 	e.GET("/chat/{id}", ch.GetChatByID(), echojwt.JWT([]byte(cfg.Secret)))
 // }
 
-// func UtilsRouter(e *echo.Echo, uh media.MediaHandlerInterface, cfg configs.ProgrammingConfig) {
-// 	e.GET("/media/upload", uh.UploadMedia(), echojwt.JWT([]byte(cfg.Secret)))
-// }
+func RouteMedia(e *echo.Echo, b bucket.BucketInterface) {
+	e.POST("/media/upload", b.UploadFileHandler())
+}
 
 // func ChatBotRouter(e *echo.Echo, uh chatbot.ChatBotHandlerInterface, cfg configs.ProgrammingConfig) {
 // 	e.POST("/chatbot", uh.ChatBot(), echojwt.JWT([]byte(cfg.Secret)))

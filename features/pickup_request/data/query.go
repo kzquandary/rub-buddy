@@ -2,6 +2,7 @@ package data
 
 import (
 	"errors"
+	"math/rand"
 	"time"
 
 	"gorm.io/gorm"
@@ -24,6 +25,7 @@ func (data *PickupRequestData) CreatePickupRequest(newPickupRequest *pickupreque
 	newPickupRequest.Status = "Pending"
 	newPickupRequest.CreatedAt = time.Now()
 	newPickupRequest.UpdatedAt = time.Now()
+	newPickupRequest.ID = uint(rand.Intn(900000) + 100000)
 	return newPickupRequest, data.DB.Create(newPickupRequest).Error
 }
 

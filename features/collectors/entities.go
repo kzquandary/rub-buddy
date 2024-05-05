@@ -24,6 +24,14 @@ type CollectorCredentials struct {
 	Token any    `json:"token"`
 }
 
+type CollectorUpdate struct {
+	ID        uint      `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	Gender    string    `json:"gender"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
 type CollectorHandlerInterface interface {
 	Register() echo.HandlerFunc
 	Login() echo.HandlerFunc
@@ -36,13 +44,13 @@ type CollectorServiceInterface interface {
 	Login(email string, password string) (*CollectorCredentials, error)
 	GetCollector(user *Collectors) error
 	GetCollectorByEmail(email string) (*Collectors, error)
-	UpdateCollector(user *Collectors) error
+	UpdateCollector(user *CollectorUpdate) error
 }
 
 type CollectorDataInterface interface {
 	Register(collector Collectors) (*Collectors, error)
 	Login(email string, password string) (*Collectors, error)
 	GetCollector(collector *Collectors) error
-	UpdateCollector(collector *Collectors) error
+	UpdateCollector(collector *CollectorUpdate) error
 	GetCollectorByEmail(email string) (*Collectors, error)
 }
