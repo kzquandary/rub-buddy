@@ -19,6 +19,16 @@ type User struct {
 	DeletedAt *sql.NullTime `json:"deleted_at"`
 }
 
+type UserUpdate struct {
+	ID        uint      `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	Address   string    `json:"address"`
+	Gender    string    `json:"gender"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type UserCredentials struct {
 	ID    uint   `json:"id"`
 	Email string `json:"email"`
@@ -37,13 +47,13 @@ type UserServiceInterface interface {
 	Login(email string, password string) (*UserCredentials, error)
 	GetUser(user *User) error
 	GetUserByEmail(email string) (*User, error)
-	UpdateUser(user *User) error
+	UpdateUser(user *UserUpdate) error
 }
 
 type UserDataInterface interface {
 	Register(user User) (*User, error)
 	Login(email string, password string) (*User, error)
 	GetUser(user *User) error
-	UpdateUser(user *User) error
+	UpdateUser(user *UserUpdate) error
 	GetUserByEmail(email string) (*User, error)
 }

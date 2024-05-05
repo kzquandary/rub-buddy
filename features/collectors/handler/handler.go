@@ -101,7 +101,7 @@ func (h *CollectorHandler) UpdateCollector() echo.HandlerFunc {
 		}
 
 		HashedPassword, err := helper.HashPassword(input.Password)
-		var collector = new(collectors.Collectors)
+		var collector = new(collectors.CollectorUpdate)
 		collector.ID = collectorsData["id"].(uint)
 		collector.Name = input.Name
 		collector.Gender = input.Gender

@@ -62,7 +62,7 @@ func (s *UserService) Register(user users.User) (*users.User, error) {
 	return result, nil
 }
 
-func (s *UserService) UpdateUser(user *users.User) error {
+func (s *UserService) UpdateUser(user *users.UserUpdate) error {
 	return s.d.UpdateUser(user)
 }
 

@@ -125,7 +125,7 @@ func (h *UserHandler) UpdateUser() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
 
-		var user = new(users.User)
+		var user = new(users.UserUpdate)
 		user.ID = userData["id"].(uint)
 		user.Email = input.Email
 		user.Name = input.Name

@@ -22,6 +22,10 @@ import (
 	handlerPickup "rub_buddy/features/pickup_request/handler"
 	servicePickup "rub_buddy/features/pickup_request/service"
 
+	dataPickupTransaction "rub_buddy/features/pickup_transaction/data"
+	handlerPickupTransaction "rub_buddy/features/pickup_transaction/handler"
+	servicePickupTransaction "rub_buddy/features/pickup_transaction/service"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -57,9 +61,14 @@ func main() {
 	pickupService := servicePickup.New(pickupModel)
 	pickupController := handlerPickup.NewHandler(pickupService, jwtInterface)
 
+	pickupTransactionModel := dataPickupTransaction.New(db)
+	pickupTransactionService := servicePickupTransaction.New(pickupTransactionModel)
+	pickupTransactionController := handlerPickupTransaction.NewHandler(pickupTransactionService, jwtInterface)
+
 	routes.RouteUser(e, userController, *config)
 	routes.RouteCollector(e, collectorController, *config)
 	routes.RoutePickup(e, pickupController, *config)
+	routes.RouteTransaction(e, pickupTransactionController, *config)
 	routes.RouteMedia(e, bucketInterface)
 	e.Logger.Debug(db)
 

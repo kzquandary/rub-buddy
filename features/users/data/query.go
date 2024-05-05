@@ -2,6 +2,7 @@ package data
 
 import (
 	"errors"
+	"math/rand"
 	"rub_buddy/constant"
 	"rub_buddy/features/users"
 	"rub_buddy/helper"
@@ -25,6 +26,7 @@ func (data *UserData) Register(newUser users.User) (*users.User, error) {
 	if err == nil {
 		return nil, errors.New(constant.EmailAlreadyExists)
 	}
+	newUser.ID = uint(rand.Intn(900000) + 100000)
 	newUser.CreatedAt = time.Now()
 	newUser.UpdatedAt = time.Now()
 	return &newUser, data.DB.Create(&newUser).Error
@@ -60,13 +62,23 @@ func (data *UserData) GetUser(user *users.User) error {
 	return data.DB.Where("email = ?", user.Email).First(user).Error
 }
 
-func (data *UserData) UpdateUser(user *users.User) error {
-	_, err := data.GetUserByEmail(user.Email)
-	if err == nil {
-		return errors.New(constant.EmailAlreadyExists)
+func (data *UserData) UpdateUser(user *users.UserUpdate) error {
+	var existingUser User
+	err := data.DB.Table("users").Where("id = ?", user.ID).First(&existingUser).Error
+	if err != nil {
+		return err
 	}
+
+	if user.Email != existingUser.Email {
+		var count int64
+		data.DB.Table("users").Where("email = ?", user.Email).Count(&count)
+		if count > 0 {
+			return errors.New(constant.EmailAlreadyExists)
+		}
+	}
+
 	user.UpdatedAt = time.Now()
-	return data.DB.Save(&user).Error
+	return data.DB.Table("users").Where("id = ?", user.ID).Updates(user).Error
 }
 
 func (data *UserData) GetUserByEmail(email string) (*users.User, error) {

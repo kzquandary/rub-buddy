@@ -2,6 +2,7 @@ package data
 
 import (
 	"errors"
+	"math/rand"
 	"rub_buddy/constant"
 	"rub_buddy/features/collectors"
 	"rub_buddy/helper"
@@ -28,7 +29,7 @@ func (data *CollectorsData) Register(newCollector collectors.Collectors) (*colle
 
 	newCollector.CreatedAt = time.Now()
 	newCollector.UpdatedAt = time.Now()
-
+	newCollector.ID = uint(rand.Intn(900000) + 100000)
 	return &newCollector, data.DB.Create(&newCollector).Error
 }
 
@@ -66,16 +67,23 @@ func (data *CollectorsData) GetCollector(collector *collectors.Collectors) error
 	return nil
 }
 
-func (data *CollectorsData) UpdateCollector(collector *collectors.Collectors) error {
-	_, err := data.GetCollectorByEmail(collector.Email)
-	if err == nil {
-		return errors.New(constant.EmailAlreadyExists)
+func (data *CollectorsData) UpdateCollector(collector *collectors.CollectorUpdate) error {
+	var existingCollector collectors.Collectors
+	err := data.DB.Table("collectors").Where("id = ?", collector.ID).First(&existingCollector).Error
+	if err != nil {
+		return err
 	}
-	result := data.DB.Where("id = ?", collector.ID).Updates(&collector)
-	if result.Error != nil {
-		return result.Error
+
+	if collector.Email != existingCollector.Email {
+		var count int64
+		data.DB.Table("collectors").Where("email = ?", collector.Email).Count(&count)
+		if count > 0 {
+			return errors.New(constant.EmailAlreadyExists)
+		}
 	}
-	return nil
+
+	collector.UpdatedAt = time.Now()
+	return data.DB.Table("collectors").Where("id = ?", collector.ID).Updates(collector).Error
 }
 
 func (data *CollectorsData) GetCollectorByEmail(email string) (*collectors.Collectors, error) {

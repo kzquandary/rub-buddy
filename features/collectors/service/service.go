@@ -59,7 +59,7 @@ func (s *CollectorService) Login(email string, password string) (*collectors.Col
 	return response, nil
 }
 
-func (s *CollectorService) UpdateCollector(collector *collectors.Collectors) error {
+func (s *CollectorService) UpdateCollector(collector *collectors.CollectorUpdate) error {
 	collector.UpdatedAt = time.Now()
 	return s.d.UpdateCollector(collector)
 }
