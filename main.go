@@ -7,6 +7,7 @@ import (
 	cfg "rub_buddy/configs"
 	"rub_buddy/helper"
 	"rub_buddy/routes"
+	"rub_buddy/utils/bucket"
 	"rub_buddy/utils/database"
 
 	dataUser "rub_buddy/features/users/data"
@@ -27,6 +28,7 @@ import (
 func main() {
 	var config = cfg.InitConfig()
 	db, err := database.InitDB(*config)
+
 	database.Migrate(db)
 	if err != nil {
 		log.Fatal(err)
@@ -37,7 +39,12 @@ func main() {
 		return c.JSON(http.StatusOK, "Hello, World!")
 	})
 	jwtInterface := helper.New(config.Secret)
-
+	
+	bucketInterface, err := bucket.New(config.ProjectID, config.BucketName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	
 	userModel := dataUser.New(db)
 	userService := serviceUser.New(userModel, jwtInterface)
 	userController := handlerUser.NewHandler(userService, jwtInterface)
@@ -53,7 +60,7 @@ func main() {
 	routes.RouteUser(e, userController, *config)
 	routes.RouteCollector(e, collectorController, *config)
 	routes.RoutePickup(e, pickupController, *config)
-
+	routes.RouteMedia(e, bucketInterface)
 	e.Logger.Debug(db)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.ServerPort)).Error())

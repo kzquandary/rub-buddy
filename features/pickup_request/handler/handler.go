@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 	"rub_buddy/constant"
 	pickuprequest "rub_buddy/features/pickup_request"
@@ -112,16 +111,19 @@ func (h *PickupRequestHandler) DeletePickupRequestByID() echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
 		}
 
-		pickupRequestData := h.j.ExtractToken(token)
+		userData := h.j.ExtractToken(token)
 
-		if pickupRequestData["role"] != "User" {
+		if userData["role"] != "User" {
 			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
 		}
 
-		UserID := pickupRequestData["id"].(uint)
+		UserID := userData["id"].(uint)
+
 		pickupRequestID := c.Param("id")
+
 		pickupRequestIDInt, err := strconv.Atoi(pickupRequestID)
-		log.Println(pickupRequestIDInt)
+
+
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, constant.BadRequest, nil))
 		}
