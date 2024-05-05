@@ -5,6 +5,7 @@ import (
 	"rub_buddy/features/collectors"
 	pickup "rub_buddy/features/pickup_request"
 	"rub_buddy/features/users"
+	bucket "rub_buddy/utils/bucket"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
@@ -30,6 +31,10 @@ func RoutePickup(e *echo.Echo, ph pickup.PickupRequestHandlerInterface, cfg conf
 	e.GET("/pickup", ph.GetAllPickupRequest(), echojwt.JWT([]byte(cfg.Secret)))
 	e.GET("/pickup/:id", ph.GetPickupRequestByID(), echojwt.JWT([]byte(cfg.Secret)))
 	e.DELETE("/pickup/:id", ph.DeletePickupRequestByID(), echojwt.JWT([]byte(cfg.Secret)))
+}
+
+func RouteMedia(e *echo.Echo, b bucket.BucketInterface) {
+	e.POST("/media/upload", b.UploadFileHandler())
 }
 
 // func TransactionRouter(e *echo.Echo, th transaction.TransactionHandlerInterface, cfg configs.ProgrammingConfig) {

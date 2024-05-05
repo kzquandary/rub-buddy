@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 	"rub_buddy/constant"
 	"rub_buddy/features/users"
@@ -86,7 +85,7 @@ func (h *UserHandler) Register() echo.HandlerFunc {
 func (h *UserHandler) GetUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tokenString := c.Request().Header.Get("Authorization")
-		log.Println("Token:", tokenString)
+
 		if tokenString == "" {
 			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
 		}
