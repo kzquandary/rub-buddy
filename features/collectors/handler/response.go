@@ -11,6 +11,7 @@ type LoginResponse struct {
 	Token any    `json:"token"`
 }
 
+
 type CollectorInfoResponse struct {
 	ID     uint   `json:"id"`
 	Email  string `json:"email"`
