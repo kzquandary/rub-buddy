@@ -14,7 +14,7 @@ func New(p pickuptransaction.PickupTransactionDataInterface) pickuptransaction.P
 	}
 }
 
-func (s *PickupTransactionService) CreatePickupTransaction(newData pickuptransaction.PickupTransaction) (*pickuptransaction.PickupTransaction, error) {
+func (s *PickupTransactionService) CreatePickupTransaction(newData pickuptransaction.PickupTransaction) (*pickuptransaction.PickupTransactionCreate, error) {
 	return s.p.CreatePickupTransaction(newData)
 }
 

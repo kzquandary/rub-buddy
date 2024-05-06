@@ -9,6 +9,7 @@ import (
 	"rub_buddy/routes"
 	"rub_buddy/utils/bucket"
 	"rub_buddy/utils/database"
+	"rub_buddy/utils/websocket"
 
 	dataUser "rub_buddy/features/users/data"
 	handlerUser "rub_buddy/features/users/handler"
@@ -43,6 +44,7 @@ func main() {
 		return c.JSON(http.StatusOK, "Hello, World!")
 	})
 	jwtInterface := helper.New(config.Secret)
+	websocketInterface := websocket.New(db, jwtInterface)
 
 	bucketInterface, err := bucket.New(config.ProjectID, config.BucketName)
 	if err != nil {
@@ -70,6 +72,14 @@ func main() {
 	routes.RoutePickup(e, pickupController, *config)
 	routes.RouteTransaction(e, pickupTransactionController, *config)
 	routes.RouteMedia(e, bucketInterface)
+	routes.RouteWebsocket(e, websocketInterface, *config)
+
+	if wsData, ok := websocketInterface.(*websocket.WebsocketData); ok {
+		go wsData.HandleMessages()
+	} else {
+		log.Fatal("Websocket Error")
+	}
+
 	e.Logger.Debug(db)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", 8080)).Error())

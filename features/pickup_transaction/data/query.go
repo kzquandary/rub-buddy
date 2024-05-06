@@ -19,7 +19,7 @@ func New(db *gorm.DB) pickuptransaction.PickupTransactionDataInterface {
 	}
 }
 
-func (data *PickupTransactionData) CreatePickupTransaction(newPickupTransaction pickuptransaction.PickupTransaction) (*pickuptransaction.PickupTransaction, error) {
+func (data *PickupTransactionData) CreatePickupTransaction(newPickupTransaction pickuptransaction.PickupTransaction) (*pickuptransaction.PickupTransactionCreate, error) {
 	newPickupTransaction.PickupTime = time.Now()
 	newPickupTransaction.CreatedAt = time.Now()
 	newPickupTransaction.UpdatedAt = time.Now()
@@ -44,7 +44,15 @@ func (data *PickupTransactionData) CreatePickupTransaction(newPickupTransaction 
 		return nil, updateStatus.Error
 	}
 
-	return &newPickupTransaction, nil
+	var TransactionCreateInfo = pickuptransaction.PickupTransactionCreate{
+		ID:              newPickupTransaction.ID,
+		PickupRequestID: newPickupTransaction.PickupRequestID,
+		CollectorID:     newPickupTransaction.CollectorID,
+		TpsID:           newPickupTransaction.TpsID,
+		PickupTime:      newPickupTransaction.PickupTime,
+		ChatID:          chat.ID,
+	}
+	return &TransactionCreateInfo, nil
 }
 
 func (data *PickupTransactionData) GetAllPickupTransaction(userId uint) ([]pickuptransaction.PickupTransaction, error) {
