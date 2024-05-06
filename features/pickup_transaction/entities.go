@@ -18,6 +18,15 @@ type PickupTransaction struct {
 	DeletedAt       *sql.NullTime `json:"deleted_at"`
 }
 
+type PickupTransactionCreate struct {
+	ID              uint      `json:"pickup_transaction_id"`
+	PickupRequestID uint      `json:"pickup_request_id"`
+	CollectorID     uint      `json:"collector_id"`
+	TpsID           uint      `json:"tps_id"`
+	PickupTime      time.Time `json:"pickup_time"`
+	ChatID          uint      `json:"chat_id"`
+}
+
 type PickupTransactionHandlerInterface interface {
 	CreatePickupTransaction() echo.HandlerFunc
 	GetAllPickupTransaction() echo.HandlerFunc
@@ -25,13 +34,13 @@ type PickupTransactionHandlerInterface interface {
 }
 
 type PickupTransactionServiceInterface interface {
-	CreatePickupTransaction(newData PickupTransaction) (*PickupTransaction, error)
+	CreatePickupTransaction(newData PickupTransaction) (*PickupTransactionCreate, error)
 	GetAllPickupTransaction(userId uint) ([]PickupTransaction, error)
 	GetPickupTransactionByID(id int) (PickupTransaction, error)
 }
 
 type PickupTransactionDataInterface interface {
-	CreatePickupTransaction(newData PickupTransaction) (*PickupTransaction, error)
+	CreatePickupTransaction(newData PickupTransaction) (*PickupTransactionCreate, error)
 	GetAllPickupTransaction(userId uint) ([]PickupTransaction, error)
 	GetPickupTransactionByID(id int) (PickupTransaction, error)
 }

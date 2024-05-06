@@ -7,6 +7,7 @@ import (
 	pickuptransaction "rub_buddy/features/pickup_transaction"
 	"rub_buddy/features/users"
 	bucket "rub_buddy/utils/bucket"
+	websocket "rub_buddy/utils/websocket"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
@@ -40,10 +41,10 @@ func RouteTransaction(e *echo.Echo, th pickuptransaction.PickupTransactionHandle
 	e.GET("/transaction/:id", th.GetPickupTransactionByID(), echojwt.JWT([]byte(cfg.Secret)))
 }
 
-// func ChatRouter(e *echo.Echo, ch chat.ChatHandlerInterface, cfg configs.ProgrammingConfig) {
-// 	e.POST("/chat", ch.Chat(), echojwt.JWT([]byte(cfg.Secret)))
-// 	e.GET("/chat/{id}", ch.GetChatByID(), echojwt.JWT([]byte(cfg.Secret)))
-// }
+func RouteWebsocket(e *echo.Echo, wh websocket.Websocket, cfg configs.ProgrammingConfig) {
+	e.GET("/chat", wh.HandleConnection())
+	e.POST("/message", wh.SendMessage(), echojwt.JWT([]byte(cfg.Secret)))
+}
 
 func RouteMedia(e *echo.Echo, b bucket.BucketInterface) {
 	e.POST("/media/upload", b.UploadFileHandler())
