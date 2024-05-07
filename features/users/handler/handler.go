@@ -26,8 +26,8 @@ func (h *UserHandler) Login() echo.HandlerFunc {
 		var input = new(LoginInput)
 
 		if err := c.Bind(input); err != nil {
-			code, message := helper.HandleEchoError(err)
-			return c.JSON(code, helper.FormatResponse(false, message, []interface{}{}))
+			err, message := helper.HandleEchoError(err)
+			return c.JSON(err, helper.FormatResponse(false, message, []interface{}{}))
 		}
 
 		user, err := h.s.Login(input.Email, input.Password)
@@ -49,8 +49,8 @@ func (h *UserHandler) Register() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input = new(RegisterInput)
 		if err := c.Bind(input); err != nil {
-			code, message := helper.HandleEchoError(err)
-			return c.JSON(code, helper.FormatResponse(false, message, []interface{}{}))
+			err, message := helper.HandleEchoError(err)
+			return c.JSON(err, helper.FormatResponse(false, message, []interface{}{}))
 		}
 		HashedPassword, err := helper.HashPassword(input.Password)
 		if err != nil {
@@ -117,8 +117,8 @@ func (h *UserHandler) UpdateUser() echo.HandlerFunc {
 		var input = new(UpdateUserInput)
 
 		if err := c.Bind(input); err != nil {
-			code, message := helper.HandleEchoError(err)
-			return c.JSON(code, helper.FormatResponse(false, message, []interface{}{}))
+			err, message := helper.HandleEchoError(err)
+			return c.JSON(err, helper.FormatResponse(false, message, []interface{}{}))
 		}
 
 		HashedPassword, err := helper.HashPassword(input.Password)

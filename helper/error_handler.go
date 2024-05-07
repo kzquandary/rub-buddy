@@ -47,6 +47,29 @@ func ConvertResponseCode(err error) int {
 	case constant.ErrorUpdateCollector:
 		return http.StatusInternalServerError
 
+	// Pickup Request Error
+	case constant.ErrPickupRequestNotFound:
+		return http.StatusNotFound
+	case constant.ErrPickupRequestCreate:
+		return http.StatusInternalServerError
+	case constant.ErrPickupRequestGet:
+		return http.StatusInternalServerError
+	case constant.ErrPickupRequestDelete:
+		return http.StatusInternalServerError
+
+	// Pickup Transaction Error
+	case constant.ErrPickupTransactionGet:
+		return http.StatusNotFound
+	case constant.ErrPickupTransactionCreate:
+		return http.StatusBadRequest
+	case constant.ErrPickupTransactionCreateChat:
+		return http.StatusInternalServerError
+	case constant.ErrPickupTransactionUpdateStatus:
+		return http.StatusInternalServerError
+	case constant.ErrPickupTransactionGetAll:
+		return http.StatusNotFound
+
+	// Default
 	default:
 		return http.StatusInternalServerError
 	}

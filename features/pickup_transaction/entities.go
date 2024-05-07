@@ -8,25 +8,38 @@ import (
 )
 
 type PickupTransaction struct {
-	ID              uint          `json:"pickup_transaction_id"`
-	PickupRequestID uint          `json:"pickup_request_id"`
-	CollectorID     uint          `json:"collector_id"`
-	TpsID           uint          `json:"tps_id"`
-	PickupTime      time.Time     `json:"pickup_time"`
-	CreatedAt       time.Time     `json:"created_at"`
-	UpdatedAt       time.Time     `json:"updated_at"`
-	DeletedAt       *sql.NullTime `json:"deleted_at"`
+	ID              uint
+	PickupRequestID uint
+	CollectorID     uint
+	TpsID           uint
+	PickupTime      time.Time
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	DeletedAt       *sql.NullTime
 }
 
 type PickupTransactionCreate struct {
-	ID              uint      `json:"pickup_transaction_id"`
-	PickupRequestID uint      `json:"pickup_request_id"`
-	CollectorID     uint      `json:"collector_id"`
-	TpsID           uint      `json:"tps_id"`
-	PickupTime      time.Time `json:"pickup_time"`
-	ChatID          uint      `json:"chat_id"`
+	ID              uint
+	PickupRequestID uint
+	CollectorID     uint
+	TpsID           uint
+	PickupTime      time.Time
+	ChatID          uint
 }
 
+type PickupTransactionInfo struct {
+	ID uint
+
+	UserID      uint
+	UserName    string
+	UserAddress string
+
+	CollectorID   uint
+	CollectorName string
+	PickupTime    time.Time
+
+	TpsID uint
+}
 type PickupTransactionHandlerInterface interface {
 	CreatePickupTransaction() echo.HandlerFunc
 	GetAllPickupTransaction() echo.HandlerFunc
@@ -35,12 +48,12 @@ type PickupTransactionHandlerInterface interface {
 
 type PickupTransactionServiceInterface interface {
 	CreatePickupTransaction(newData PickupTransaction) (*PickupTransactionCreate, error)
-	GetAllPickupTransaction(userId uint) ([]PickupTransaction, error)
-	GetPickupTransactionByID(id int) (PickupTransaction, error)
+	GetAllPickupTransaction(userId uint) ([]PickupTransactionInfo, error)
+	GetPickupTransactionByID(id int) (PickupTransactionInfo, error)
 }
 
 type PickupTransactionDataInterface interface {
 	CreatePickupTransaction(newData PickupTransaction) (*PickupTransactionCreate, error)
-	GetAllPickupTransaction(userId uint) ([]PickupTransaction, error)
-	GetPickupTransactionByID(id int) (PickupTransaction, error)
+	GetAllPickupTransaction(userId uint) ([]PickupTransactionInfo, error)
+	GetPickupTransactionByID(id int) (PickupTransactionInfo, error)
 }

@@ -1,12 +1,16 @@
 package handler
 
-type PickupRequestInfo struct {
-	ID          uint
-	UserID      uint
-	Weight      float64
-	Address     string
-	Description string
-	Earnings    float64
-	Image       string
+type UserInfo struct {
+	ID   uint   `json:"user_id"`
+	Name string `json:"user_name"`
 }
+type PickupRequestInfo struct {
+	ID   uint     `json:"pickup_request_id"`
+	User UserInfo `json:"user"`
 
+	Weight      float64 `json:"weight"`
+	Address     string  `json:"address"`
+	Description string  `json:"description"`
+	Earnings    float64 `json:"earnings"`
+	Image       string  `json:"image"`
+}
