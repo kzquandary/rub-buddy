@@ -24,3 +24,16 @@ var ErrCollectorIncorrectPassword error = errors.New("Incorrect Password")
 var ErrCollectorLoginJWT error = errors.New("Failed to generate JWT token, please try again")
 var ErrUpdateCollectorEmailExists error = errors.New("Email already exists, please use another email")
 var ErrorUpdateCollector error = errors.New("Failed to update collector")
+
+//Pickup Request Errors Code
+var ErrPickupRequestNotFound error = errors.New("Pickup request not found")
+var ErrPickupRequestCreate error = errors.New("Failed to create pickup request")
+var ErrPickupRequestGet error = errors.New("Failed to get pickup request")
+var ErrPickupRequestDelete error = errors.New("Failed to delete pickup request")
+
+//Pickup Transaction Errors Code
+var ErrPickupTransactionCreate error = errors.New("Failed to create pickup transaction")
+var ErrPickupTransactionCreateChat error = errors.New("Failed to create chat")
+var ErrPickupTransactionUpdateStatus error = errors.New("Failed to update status")
+var ErrPickupTransactionGet error = errors.New("Failed to get pickup transaction")
+var ErrPickupTransactionGetAll error = errors.New("Failed to get all pickup transaction")

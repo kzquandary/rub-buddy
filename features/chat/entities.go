@@ -8,11 +8,11 @@ import (
 )
 
 type Chat struct {
-	ID                  uint          `json:"chat_id"`
-	PickupTransactionID uint          `json:"pickup_transaction_id"`
-	CreatedAt           time.Time     `json:"created_at"`
-	UpdatedAt           time.Time     `json:"updated_at"`
-	DeletedAt           *sql.NullTime `json:"deleted_at"`
+	ID                  uint          
+	PickupTransactionID uint          
+	CreatedAt           time.Time     
+	UpdatedAt           time.Time     
+	DeletedAt           *sql.NullTime 
 }
 
 type ChatHandlerInterface interface {

@@ -1,6 +1,10 @@
 package data
 
-import "gorm.io/gorm"
+import (
+	"rub_buddy/constant/tablename"
+
+	"gorm.io/gorm"
+)
 
 type PickupRequest struct {
 	*gorm.Model
@@ -15,5 +19,5 @@ type PickupRequest struct {
 }
 
 func (PickupRequest) TableName() string {
-	return "pickup_request"
+	return tablename.PickupRequestTableName
 }
