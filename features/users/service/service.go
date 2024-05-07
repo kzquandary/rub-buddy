@@ -29,9 +29,9 @@ func (s *UserService) Login(email string, password string) (*users.UserCredentia
 		return nil, err
 	}
 
-	token, err := s.j.GenerateJWT(result.ID, "User", result.Email, result.Address)
+	token, err := s.j.GenerateJWT(result.ID, constant.RoleUser, result.Email, result.Address)
 	if err != nil {
-		return nil, constant.ErrLoginJWT
+		return nil, err
 	}
 
 	response := new(users.UserCredentials)
@@ -51,10 +51,6 @@ func (s *UserService) Register(user users.User) (*users.User, error) {
 
 func (s *UserService) UpdateUser(user *users.UserUpdate) error {
 	return s.d.UpdateUser(user)
-}
-
-func (s *UserService) GetUser(user *users.User) error {
-	return s.d.GetUser(user)
 }
 
 func (s *UserService) GetUserByEmail(email string) (*users.User, error) {

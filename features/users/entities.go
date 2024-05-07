@@ -45,7 +45,6 @@ type UserHandlerInterface interface {
 type UserServiceInterface interface {
 	Register(newUser User) (*User, error)
 	Login(email string, password string) (*UserCredentials, error)
-	GetUser(user *User) error
 	GetUserByEmail(email string) (*User, error)
 	UpdateUser(user *UserUpdate) error
 }
@@ -53,7 +52,6 @@ type UserServiceInterface interface {
 type UserDataInterface interface {
 	Register(user User) (*User, error)
 	Login(email string, password string) (*User, error)
-	GetUser(user *User) error
 	UpdateUser(user *UserUpdate) error
 	GetUserByEmail(email string) (*User, error)
 }

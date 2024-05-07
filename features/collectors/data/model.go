@@ -2,6 +2,8 @@ package data
 
 import (
 	"gorm.io/gorm"
+
+	"rub_buddy/constant/tablename"
 )
 
 type Collector struct {
@@ -13,5 +15,5 @@ type Collector struct {
 }
 
 func (Collector) TableName() string {
-	return "collectors"
+	return tablename.CollectorTableName
 }

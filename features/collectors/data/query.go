@@ -3,7 +3,7 @@ package data
 import (
 	"math/rand"
 	"rub_buddy/constant"
-	tableName "rub_buddy/constant/table_name"
+	"rub_buddy/constant/tablename"
 	"rub_buddy/features/collectors"
 	"rub_buddy/helper"
 	"time"
@@ -63,31 +63,23 @@ func (data *CollectorsData) Login(email string, password string) (*collectors.Co
 	return result, nil
 }
 
-func (data *CollectorsData) GetCollector(collector *collectors.Collectors) error {
-	result := data.DB.Where("id = ?", collector.ID).First(&collector)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
-}
-
 func (data *CollectorsData) UpdateCollector(collector *collectors.CollectorUpdate) error {
 	var existingCollector collectors.Collectors
-	err := data.DB.Table(tableName.CollectorTableName).Where("id = ?", collector.ID).First(&existingCollector).Error
+	err := data.DB.Table(tablename.CollectorTableName).Where("id = ?", collector.ID).First(&existingCollector).Error
 	if err != nil {
 		return constant.ErrCollectorUserNotFound
 	}
 
 	if collector.Email != existingCollector.Email {
 		var count int64
-		data.DB.Table(tableName.CollectorTableName).Where("email = ?", collector.Email).Count(&count)
+		data.DB.Table(tablename.CollectorTableName).Where("email = ?", collector.Email).Count(&count)
 		if count > 0 {
 			return constant.ErrUpdateCollectorEmailExists
 		}
 	}
 
 	collector.UpdatedAt = time.Now()
-	err = data.DB.Table(tableName.CollectorTableName).Where("id = ?", collector.ID).Updates(collector).Error
+	err = data.DB.Table(tablename.CollectorTableName).Where("id = ?", collector.ID).Updates(collector).Error
 	if err != nil {
 		return constant.ErrorUpdateCollector
 	}

@@ -80,7 +80,7 @@ func (h *CollectorHandler) Login() echo.HandlerFunc {
 
 func (h *CollectorHandler) UpdateCollector() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		tokenString := c.Request().Header.Get("Authorization")
+		tokenString := c.Request().Header.Get(constant.HeaderAuthorization)
 
 		token, err := h.j.ValidateToken(tokenString)
 		if err != nil {
@@ -103,7 +103,7 @@ func (h *CollectorHandler) UpdateCollector() echo.HandlerFunc {
 		}
 
 		var collector = new(collectors.CollectorUpdate)
-		collector.ID = collectorsData["id"].(uint)
+		collector.ID = collectorsData[constant.JWT_ID].(uint)
 		collector.Name = input.Name
 		collector.Gender = input.Gender
 		collector.Email = input.Email
@@ -125,7 +125,7 @@ func (h *CollectorHandler) UpdateCollector() echo.HandlerFunc {
 
 func (h *CollectorHandler) GetCollector() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		tokenString := c.Request().Header.Get("Authorization")
+		tokenString := c.Request().Header.Get(constant.HeaderAuthorization)
 
 		token, err := h.j.ValidateToken(tokenString)
 
@@ -135,7 +135,7 @@ func (h *CollectorHandler) GetCollector() echo.HandlerFunc {
 
 		collectorData := h.j.ExtractToken(token)
 
-		collectorDetails, err := h.s.GetCollectorByEmail(collectorData["email"].(string))
+		collectorDetails, err := h.s.GetCollectorByEmail(collectorData[constant.JWT_EMAIL].(string))
 
 		if err != nil {
 			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
