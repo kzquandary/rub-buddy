@@ -92,7 +92,14 @@ func (h *UserHandler) GetUser() echo.HandlerFunc {
 		if err != nil {
 			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
 		}
-		return c.JSON(http.StatusOK, helper.FormatResponse(true, constant.UserGetSuccess, []interface{}{userDetails}))
+
+		var response = new(UserInfoResponse)
+		response.ID = userDetails.ID
+		response.Email = userDetails.Email
+		response.Name = userDetails.Name
+		response.Address = userDetails.Address
+		response.Gender = userDetails.Gender
+		return c.JSON(http.StatusOK, helper.FormatResponse(true, constant.UserGetSuccess, []interface{}{response}))
 	}
 }
 
