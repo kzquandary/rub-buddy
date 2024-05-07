@@ -42,7 +42,6 @@ type CollectorHandlerInterface interface {
 type CollectorServiceInterface interface {
 	Register(newUser Collectors) (*Collectors, error)
 	Login(email string, password string) (*CollectorCredentials, error)
-	GetCollector(user *Collectors) error
 	GetCollectorByEmail(email string) (*Collectors, error)
 	UpdateCollector(user *CollectorUpdate) error
 }
@@ -50,7 +49,6 @@ type CollectorServiceInterface interface {
 type CollectorDataInterface interface {
 	Register(collector Collectors) (*Collectors, error)
 	Login(email string, password string) (*Collectors, error)
-	GetCollector(collector *Collectors) error
 	UpdateCollector(collector *CollectorUpdate) error
 	GetCollectorByEmail(email string) (*Collectors, error)
 }

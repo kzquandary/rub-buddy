@@ -76,7 +76,7 @@ func (h *UserHandler) Register() echo.HandlerFunc {
 
 func (h *UserHandler) GetUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		tokenString := c.Request().Header.Get("Authorization")
+		tokenString := c.Request().Header.Get(constant.HeaderAuthorization)
 
 		if tokenString == "" {
 			helper.UnauthorizedError(c)
@@ -88,7 +88,7 @@ func (h *UserHandler) GetUser() echo.HandlerFunc {
 
 		userData := h.jwt.ExtractToken(token)
 
-		userDetails, err := h.s.GetUserByEmail(userData["email"].(string))
+		userDetails, err := h.s.GetUserByEmail(userData[constant.JWT_EMAIL].(string))
 		if err != nil {
 			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
 		}
@@ -105,7 +105,7 @@ func (h *UserHandler) GetUser() echo.HandlerFunc {
 
 func (h *UserHandler) UpdateUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		tokenString := c.Request().Header.Get("Authorization")
+		tokenString := c.Request().Header.Get(constant.HeaderAuthorization)
 
 		token, err := h.jwt.ValidateToken(tokenString)
 		if err != nil {
@@ -127,7 +127,7 @@ func (h *UserHandler) UpdateUser() echo.HandlerFunc {
 		}
 
 		var user = new(users.UserUpdate)
-		user.ID = userData["id"].(uint)
+		user.ID = userData[constant.JWT_ID].(uint)
 		user.Email = input.Email
 		user.Name = input.Name
 		user.Address = input.Address

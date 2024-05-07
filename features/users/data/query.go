@@ -3,7 +3,7 @@ package data
 import (
 	"math/rand"
 	"rub_buddy/constant"
-	tableName "rub_buddy/constant/table_name"
+	"rub_buddy/constant/tablename"
 	"rub_buddy/features/users"
 	"rub_buddy/helper"
 	"time"
@@ -58,31 +58,23 @@ func (data *UserData) Login(email string, password string) (*users.User, error) 
 	return result, nil
 }
 
-func (data *UserData) GetUser(user *users.User) error {
-	err := data.DB.Where("email = ?", user.Email).First(user).Error
-	if err != nil {
-		return constant.UserNotFound
-	}
-	return nil
-}
-
 func (data *UserData) UpdateUser(user *users.UserUpdate) error {
 	var existingUser User
-	err := data.DB.Table(tableName.UserTableName).Where("id = ?", user.ID).First(&existingUser).Error
+	err := data.DB.Table(tablename.UserTableName).Where("id = ?", user.ID).First(&existingUser).Error
 	if err != nil {
 		return constant.UserNotFound
 	}
 
 	if user.Email != existingUser.Email {
 		var count int64
-		data.DB.Table(tableName.UserTableName).Where("email = ?", user.Email).Count(&count)
+		data.DB.Table(tablename.UserTableName).Where("email = ?", user.Email).Count(&count)
 		if count > 0 {
 			return constant.ErrUpdateUserEmailExists
 		}
 	}
 
 	user.UpdatedAt = time.Now()
-	err = data.DB.Table(tableName.UserTableName).Where("id = ?", user.ID).Updates(user).Error
+	err = data.DB.Table(tablename.UserTableName).Where("id = ?", user.ID).Updates(user).Error
 	if err != nil {
 		return constant.ErrUpdateUser
 	}
