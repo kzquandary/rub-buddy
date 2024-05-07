@@ -1,6 +1,8 @@
 package helper
 
 import (
+	"rub_buddy/constant"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -12,7 +14,10 @@ const (
 
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), DefaultCost)
-	return string(bytes), err
+	if err != nil {
+		return "", constant.ErrHashPassword
+	}
+	return string(bytes), nil
 }
 
 func CheckPasswordHash(password, hash string) bool {

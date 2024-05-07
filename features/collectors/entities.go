@@ -8,29 +8,29 @@ import (
 )
 
 type Collectors struct {
-	ID        uint          `json:"id"`
-	Name      string        `json:"name"`
-	Email     string        `json:"email"`
-	Password  string        `json:"password"`
-	Gender    string        `json:"gender"`
-	CreatedAt time.Time     `json:"created_at"`
-	UpdatedAt time.Time     `json:"updated_at"`
-	DeletedAt *sql.NullTime `json:"deleted_at"`
+	ID        uint
+	Name      string
+	Email     string
+	Password  string
+	Gender    string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *sql.NullTime
 }
 
 type CollectorCredentials struct {
-	ID    uint   `json:"id"`
-	Email string `json:"email"`
-	Token any    `json:"token"`
+	ID    uint
+	Email string
+	Token any
 }
 
 type CollectorUpdate struct {
-	ID        uint      `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
-	Gender    string    `json:"gender"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint
+	Name      string
+	Email     string
+	Password  string
+	Gender    string
+	UpdatedAt time.Time
 }
 type CollectorHandlerInterface interface {
 	Register() echo.HandlerFunc

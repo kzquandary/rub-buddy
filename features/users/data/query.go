@@ -1,9 +1,9 @@
 package data
 
 import (
-	"errors"
 	"math/rand"
 	"rub_buddy/constant"
+	tableName "rub_buddy/constant/table_name"
 	"rub_buddy/features/users"
 	"rub_buddy/helper"
 	"time"
@@ -24,7 +24,7 @@ func New(db *gorm.DB) users.UserDataInterface {
 func (data *UserData) Register(newUser users.User) (*users.User, error) {
 	_, err := data.GetUserByEmail(newUser.Email)
 	if err == nil {
-		return nil, errors.New(constant.EmailAlreadyExists)
+		return nil, constant.ErrRegisterUserExists
 	}
 	newUser.ID = uint(rand.Intn(900000) + 100000)
 	newUser.CreatedAt = time.Now()
@@ -42,10 +42,10 @@ func (data *UserData) Login(email string, password string) (*users.User, error) 
 	UserData.Count(&userCount)
 
 	if userCount == 0 {
-		return nil, errors.New(constant.NotFound)
+		return nil, constant.UserNotFound
 	}
 	if !helper.CheckPasswordHash(password, user.Password) {
-		return nil, errors.New(constant.IncorrectPassword)
+		return nil, constant.ErrLoginIncorrectPassword
 	}
 
 	var result = new(users.User)
@@ -59,26 +59,34 @@ func (data *UserData) Login(email string, password string) (*users.User, error) 
 }
 
 func (data *UserData) GetUser(user *users.User) error {
-	return data.DB.Where("email = ?", user.Email).First(user).Error
+	err := data.DB.Where("email = ?", user.Email).First(user).Error
+	if err != nil {
+		return constant.UserNotFound
+	}
+	return nil
 }
 
 func (data *UserData) UpdateUser(user *users.UserUpdate) error {
 	var existingUser User
-	err := data.DB.Table("users").Where("id = ?", user.ID).First(&existingUser).Error
+	err := data.DB.Table(tableName.UserTableName).Where("id = ?", user.ID).First(&existingUser).Error
 	if err != nil {
-		return err
+		return constant.UserNotFound
 	}
 
 	if user.Email != existingUser.Email {
 		var count int64
-		data.DB.Table("users").Where("email = ?", user.Email).Count(&count)
+		data.DB.Table(tableName.UserTableName).Where("email = ?", user.Email).Count(&count)
 		if count > 0 {
-			return errors.New(constant.EmailAlreadyExists)
+			return constant.ErrUpdateUserEmailExists
 		}
 	}
 
 	user.UpdatedAt = time.Now()
-	return data.DB.Table("users").Where("id = ?", user.ID).Updates(user).Error
+	err = data.DB.Table(tableName.UserTableName).Where("id = ?", user.ID).Updates(user).Error
+	if err != nil {
+		return constant.ErrUpdateUser
+	}
+	return nil
 }
 
 func (data *UserData) GetUserByEmail(email string) (*users.User, error) {
@@ -91,7 +99,7 @@ func (data *UserData) GetUserByEmail(email string) (*users.User, error) {
 	query.Count(&dataCount)
 
 	if dataCount == 0 {
-		return nil, errors.New(constant.NotFound)
+		return nil, constant.UserNotFound
 	}
 
 	var result = new(users.User)
