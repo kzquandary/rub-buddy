@@ -6,6 +6,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"os"
 	"rub_buddy/helper"
 	"time"
 
@@ -31,7 +32,7 @@ type ImageResponse struct {
 
 func New(ProjectID string, BucketName string) (BucketInterface, error) {
 	// Dev Mode
-	// os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "credentials.json")
+	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "credentials.json")
 
 	ctx := context.Background()
 

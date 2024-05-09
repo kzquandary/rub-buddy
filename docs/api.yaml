@@ -10,7 +10,7 @@ externalDocs:
   description: Find out more about Kzquandary
   url: http://kzquandary.my.id
 servers:
-  - url: https://miniproject.kzquandary.my.id/api/v1
+  - url: https://api.kzquandary.my.id/api/v1
 tags:
   - name: user
     description: Operations about user

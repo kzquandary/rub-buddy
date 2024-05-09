@@ -99,6 +99,7 @@ func (h *UserHandler) GetUser() echo.HandlerFunc {
 		response.Name = userDetails.Name
 		response.Address = userDetails.Address
 		response.Gender = userDetails.Gender
+		response.Balance = userDetails.Balance
 		return c.JSON(http.StatusOK, helper.FormatResponse(true, constant.UserGetSuccess, []interface{}{response}))
 	}
 }

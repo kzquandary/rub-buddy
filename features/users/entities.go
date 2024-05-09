@@ -14,6 +14,7 @@ type User struct {
 	Password  string
 	Address   string
 	Gender    string
+	Balance   int64
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt *sql.NullTime
@@ -26,6 +27,7 @@ type UserUpdate struct {
 	Password  string
 	Address   string
 	Gender    string
+	Balance   int64
 	UpdatedAt time.Time
 }
 
