@@ -27,6 +27,7 @@ func (data *UserData) Register(newUser users.User) (*users.User, error) {
 		return nil, constant.ErrRegisterUserExists
 	}
 	newUser.ID = uint(rand.Intn(900000) + 100000)
+	newUser.Balance = 0
 	newUser.CreatedAt = time.Now()
 	newUser.UpdatedAt = time.Now()
 	return &newUser, data.DB.Create(&newUser).Error
@@ -101,6 +102,7 @@ func (data *UserData) GetUserByEmail(email string) (*users.User, error) {
 	result.Password = user.Password
 	result.Address = user.Address
 	result.Gender = user.Gender
+	result.Balance = user.Balance
 	result.CreatedAt = user.CreatedAt
 	result.UpdatedAt = user.UpdatedAt
 	return result, nil

@@ -37,3 +37,10 @@ var ErrPickupTransactionCreateChat error = errors.New("Failed to create chat")
 var ErrPickupTransactionUpdateStatus error = errors.New("Failed to update status")
 var ErrPickupTransactionGet error = errors.New("Failed to get pickup transaction")
 var ErrPickupTransactionGetAll error = errors.New("Failed to get all pickup transaction")
+
+//Payment Transaction Success
+var ErrPaymentTransactionCreate error = errors.New("Failed to create payment transaction")
+var ErrAlreadyVerified error = errors.New("Payment already verified")
+var ErrPaymentTransactionUpdate error = errors.New("Failed to update payment transaction")
+var ErrGetPaymentTransaction error = errors.New("Failed to get payment transaction")
+

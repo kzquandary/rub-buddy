@@ -39,7 +39,6 @@ type Websocket interface {
 	HandleConnection() echo.HandlerFunc
 	isChatIDExists(chatID uint) bool
 	loadMessagesFromDB(chatID uint, conn *websocket.Conn) error
-	HandleMessages()
 	saveMessageToDB(msg Message) error
 	SendMessage() echo.HandlerFunc
 }
@@ -144,8 +143,6 @@ func (data *WebsocketData) HandleConnection() echo.HandlerFunc {
 		return nil
 	}
 }
-
-
 
 func (data *WebsocketData) isChatIDExists(chatID uint) bool {
 	var count int64

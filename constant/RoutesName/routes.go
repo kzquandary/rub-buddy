@@ -19,4 +19,9 @@ const TransactionById = TransactionBasePath + "/:id"
 const ChatBasePath = BasePath + "/chats"
 const ChatMessage = BasePath + "/message"
 
-const MediaUpload = BasePath + "/media"
+const MediaUpload = BasePath + "/media/upload"
+
+const ChatBot = BasePath + "/chatbot"
+
+const PaymentBasePath = BasePath + "/payments"
+const PaymentVerify = PaymentBasePath + "/verify/:order_id"

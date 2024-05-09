@@ -69,6 +69,16 @@ func ConvertResponseCode(err error) int {
 	case constant.ErrPickupTransactionGetAll:
 		return http.StatusNotFound
 
+	// Payment Transaction Error
+	case constant.ErrAlreadyVerified:
+		return http.StatusBadRequest
+	case constant.ErrPaymentTransactionCreate:
+		return http.StatusInternalServerError
+	case constant.ErrPaymentTransactionUpdate:
+		return http.StatusInternalServerError
+	case constant.ErrGetPaymentTransaction:
+		return http.StatusNotFound
+
 	// Default
 	default:
 		return http.StatusInternalServerError

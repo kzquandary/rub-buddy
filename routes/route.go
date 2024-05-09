@@ -2,12 +2,14 @@ package routes
 
 import (
 	"rub_buddy/configs"
-	routesname "rub_buddy/constant/routesname"
+	"rub_buddy/constant/routesname"
 	"rub_buddy/features/collectors"
+	"rub_buddy/features/midtranspayment"
 	pickup "rub_buddy/features/pickup_request"
 	pickuptransaction "rub_buddy/features/pickup_transaction"
 	"rub_buddy/features/users"
 	bucket "rub_buddy/utils/bucket"
+	"rub_buddy/utils/chatbot"
 	websocket "rub_buddy/utils/websocket"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -50,6 +52,11 @@ func RouteMedia(e *echo.Echo, b bucket.BucketInterface) {
 	e.POST(routesname.MediaUpload, b.UploadFileHandler())
 }
 
-// func ChatBotRouter(e *echo.Echo, uh chatbot.ChatBotHandlerInterface, cfg configs.ProgrammingConfig) {
-// 	e.POST("/chatbot", uh.ChatBot(), echojwt.JWT([]byte(cfg.Secret)))
-// }
+func RouteChatbot(e *echo.Echo, cb chatbot.Chatbot) {
+	e.GET(routesname.ChatBot, cb.HandleConnectionChatBot())
+}
+
+func RouteMidtrans(e *echo.Echo, mh midtranspayment.MidtransHandlerInterface, cfg configs.ProgrammingConfig) {
+	e.POST(routesname.PaymentBasePath, mh.CreateTransaction(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET(routesname.PaymentVerify, mh.VerifyPayment(), echojwt.JWT([]byte(cfg.Secret)))
+}

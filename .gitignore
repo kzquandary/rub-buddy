@@ -1,3 +1,5 @@
+.env
+.env.local
 .env.prod
 go.sum
 credentials.json
