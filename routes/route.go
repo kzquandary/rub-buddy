@@ -3,6 +3,7 @@ package routes
 import (
 	"rub_buddy/configs"
 	"rub_buddy/constant/routesname"
+	"rub_buddy/features/chat"
 	"rub_buddy/features/collectors"
 	"rub_buddy/features/midtranspayment"
 	pickup "rub_buddy/features/pickup_request"
@@ -43,6 +44,9 @@ func RouteTransaction(e *echo.Echo, th pickuptransaction.PickupTransactionHandle
 	e.GET(routesname.TransactionById, th.GetPickupTransactionByID(), echojwt.JWT([]byte(cfg.Secret)))
 }
 
+func RouteChat(e *echo.Echo, ch chat.ChatHandlerInterface, cfg configs.ProgrammingConfig) {
+	e.GET(routesname.ChatBasePath, ch.GetChat(), echojwt.JWT([]byte(cfg.Secret)))
+}
 func RouteWebsocket(e *echo.Echo, wh websocket.Websocket, cfg configs.ProgrammingConfig) {
 	e.GET(routesname.ChatBasePath, wh.HandleConnection())
 	e.POST(routesname.ChatMessage, wh.SendMessage(), echojwt.JWT([]byte(cfg.Secret)))

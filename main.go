@@ -32,6 +32,10 @@ import (
 	handlerPickupTransaction "rub_buddy/features/pickup_transaction/handler"
 	servicePickupTransaction "rub_buddy/features/pickup_transaction/service"
 
+	dataChats "rub_buddy/features/chat/data"
+	handlerChats "rub_buddy/features/chat/handler"
+	serviceChats "rub_buddy/features/chat/service"
+
 	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
 )
@@ -85,12 +89,17 @@ func main() {
 	pickupTransactionService := servicePickupTransaction.New(pickupTransactionModel)
 	pickupTransactionController := handlerPickupTransaction.NewHandler(pickupTransactionService, jwtInterface)
 
+	chatModel := dataChats.New(db)
+	chatService := serviceChats.New(chatModel)
+	chatController := handlerChats.NewHandler(chatService, jwtInterface)
+
 	routes.RouteUser(e, userController, *config)
 	routes.RouteCollector(e, collectorController, *config)
 	routes.RoutePickup(e, pickupController, *config)
 	routes.RouteTransaction(e, pickupTransactionController, *config)
 	routes.RouteMedia(e, bucketInterface)
 	routes.RouteWebsocket(e, websocketInterface, *config)
+	routes.RouteChat(e, chatController, *config)
 	routes.RouteChatbot(e, chatbotInterface)
 	routes.RouteMidtrans(e, midtransHandler, *config)
 	if wsData, ok := websocketInterface.(*websocket.WebsocketData); ok {
