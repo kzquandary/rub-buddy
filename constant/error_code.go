@@ -44,3 +44,5 @@ var ErrAlreadyVerified error = errors.New("Payment already verified")
 var ErrPaymentTransactionUpdate error = errors.New("Failed to update payment transaction")
 var ErrGetPaymentTransaction error = errors.New("Failed to get payment transaction")
 
+//Chat Errors Code
+var ErrChatGet error = errors.New("Failed to get chat")
