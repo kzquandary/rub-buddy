@@ -8,7 +8,8 @@ type ChatServiceInterface struct {
 	d rubbuddychat.ChatDataInterface
 }
 
-func New(d rubbuddychat.ChatDataInterface) rubbuddychat.ChatServiceInterface {
+func 
+New(d rubbuddychat.ChatDataInterface) rubbuddychat.ChatServiceInterface {
 	return &ChatServiceInterface{
 		d: d,
 	}

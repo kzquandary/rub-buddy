@@ -3,7 +3,7 @@ package service
 import (
 	"rub_buddy/configs"
 	"rub_buddy/features/midtranspayment"
-
+	"rub_buddy/constant"
 	"github.com/midtrans/midtrans-go"
 	"github.com/midtrans/midtrans-go/snap"
 )
@@ -31,7 +31,7 @@ func (s *MidtransService) GenerateSnapURL(payment midtranspayment.Midtrans) (mid
 	client.New(s.config.ServerKey, midtrans.Sandbox)
 	snapResponse, err := client.CreateTransaction(req)
 	if err != nil {
-		return midtranspayment.Midtrans{}, err
+		return midtranspayment.Midtrans{}, constant.ErrPaymentClient
 	}
 
 	paymentData := midtranspayment.Midtrans{

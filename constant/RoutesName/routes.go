@@ -16,7 +16,9 @@ const PickupById = PickupBasePath + "/:id"
 const TransactionBasePath = BasePath + "/transactions"
 const TransactionById = TransactionBasePath + "/:id"
 
-const ChatBasePath = BasePath + "/chats"
+const GetChats = BasePath + "/chats"
+
+const ChatBasePath = BasePath + "/ws/chats"
 const ChatMessage = BasePath + "/message"
 
 const MediaUpload = BasePath + "/media/upload"

@@ -43,6 +43,8 @@ var ErrPaymentTransactionCreate error = errors.New("Failed to create payment tra
 var ErrAlreadyVerified error = errors.New("Payment already verified")
 var ErrPaymentTransactionUpdate error = errors.New("Failed to update payment transaction")
 var ErrGetPaymentTransaction error = errors.New("Failed to get payment transaction")
+var ErrPaymentClient error = errors.New("Failed to create payment")
+var ErrCreatePayment error = errors.New("Failed to create payment transaction")
 
 //Chat Errors Code
 var ErrChatGet error = errors.New("Failed to get chat")
