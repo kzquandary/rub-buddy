@@ -5,7 +5,6 @@ import (
 	"rub_buddy/constant"
 	"rub_buddy/features/collectors"
 	"rub_buddy/helper"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -27,12 +26,13 @@ func (h *CollectorHandler) Register() echo.HandlerFunc {
 		var input = new(RegisterInput)
 		err := c.Bind(input)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
+			err, message := helper.HandleEchoError(err)
+			return c.JSON(err, helper.FormatResponse(false, message, []interface{}{}))
 		}
 
 		HashedPassword, err := helper.HashPassword(input.Password)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
+			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
 		}
 
 		collector, err := h.s.Register(collectors.Collectors{
@@ -42,16 +42,13 @@ func (h *CollectorHandler) Register() echo.HandlerFunc {
 			Gender:   input.Gender,
 		})
 		if err != nil {
-			if strings.Contains(err.Error(), constant.EmailAlreadyExists) {
-				return c.JSON(http.StatusConflict, helper.FormatResponse(false, constant.EmailAlreadyExists, nil))
-			}
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
+			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
 		}
 
 		var response = new(RegisterResponse)
 		response.ID = collector.ID
 		response.Email = collector.Email
-		return c.JSON(http.StatusCreated, helper.FormatResponse(true, "Register success", []interface{}{response}))
+		return c.JSON(http.StatusCreated, helper.FormatResponse(true, constant.CollectorRegisterSuccess, []interface{}{response}))
 	}
 }
 
@@ -62,16 +59,14 @@ func (h *CollectorHandler) Login() echo.HandlerFunc {
 		err := c.Bind(input)
 
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
+			err, message := helper.HandleEchoError(err)
+			return c.JSON(err, helper.FormatResponse(false, message, []interface{}{}))
 		}
 
 		collector, err := h.s.Login(input.Email, input.Password)
 
 		if err != nil {
-			if strings.Contains(err.Error(), constant.NotFound) {
-				return c.JSON(http.StatusNotFound, helper.FormatResponse(false, constant.UserNotFound, nil))
-			}
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
+			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
 		}
 
 		var response = new(LoginResponse)
@@ -79,30 +74,36 @@ func (h *CollectorHandler) Login() echo.HandlerFunc {
 		response.Email = collector.Email
 		response.Token = collector.Token
 
-		return c.JSON(http.StatusOK, helper.FormatResponse(true, "Login success", []interface{}{response}))
+		return c.JSON(http.StatusOK, helper.FormatResponse(true, constant.CollectorLoginSuccess, []interface{}{response}))
 	}
 }
 
 func (h *CollectorHandler) UpdateCollector() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		tokenString := c.Request().Header.Get("Authorization")
+		tokenString := c.Request().Header.Get(constant.HeaderAuthorization)
 
 		token, err := h.j.ValidateToken(tokenString)
 		if err != nil {
-			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
+			helper.UnauthorizedError(c)
 		}
+
 		collectorsData := h.j.ExtractToken(token)
 
 		var input = new(UpdateCollectorInput)
 
 		err = c.Bind(input)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
+			err, message := helper.HandleEchoError(err)
+			return c.JSON(err, helper.FormatResponse(false, message, []interface{}{}))
 		}
 
 		HashedPassword, err := helper.HashPassword(input.Password)
+		if err != nil {
+			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
+		}
+
 		var collector = new(collectors.CollectorUpdate)
-		collector.ID = collectorsData["id"].(uint)
+		collector.ID = collectorsData[constant.JWT_ID].(uint)
 		collector.Name = input.Name
 		collector.Gender = input.Gender
 		collector.Email = input.Email
@@ -110,10 +111,7 @@ func (h *CollectorHandler) UpdateCollector() echo.HandlerFunc {
 
 		err = h.s.UpdateCollector(collector)
 		if err != nil {
-			if strings.Contains(err.Error(), constant.EmailAlreadyExists) {
-				return c.JSON(http.StatusConflict, helper.FormatResponse(false, constant.EmailAlreadyExists, nil))
-			}
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
+			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
 		}
 
 		var response = new(CollectorInfoResponse)
@@ -121,28 +119,33 @@ func (h *CollectorHandler) UpdateCollector() echo.HandlerFunc {
 		response.Email = collector.Email
 		response.Name = collector.Name
 		response.Gender = collector.Gender
-		return c.JSON(http.StatusOK, helper.FormatResponse(true, "Update collector success", []interface{}{response}))
+		return c.JSON(http.StatusOK, helper.FormatResponse(true, constant.CollectorUpdateSuccess, []interface{}{response}))
 	}
 }
 
 func (h *CollectorHandler) GetCollector() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		tokenString := c.Request().Header.Get("Authorization")
+		tokenString := c.Request().Header.Get(constant.HeaderAuthorization)
 
 		token, err := h.j.ValidateToken(tokenString)
 
 		if err != nil {
-			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
+			helper.UnauthorizedError(c)
 		}
 
 		collectorData := h.j.ExtractToken(token)
 
-		collectorDetails, err := h.s.GetCollectorByEmail(collectorData["email"].(string))
+		collectorDetails, err := h.s.GetCollectorByEmail(collectorData[constant.JWT_EMAIL].(string))
 
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
+			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse(true, "Get collector success", []interface{}{collectorDetails}))
+		var response = new(CollectorInfoResponse)
+		response.ID = collectorDetails.ID
+		response.Email = collectorDetails.Email
+		response.Name = collectorDetails.Name
+		response.Gender = collectorDetails.Gender
+		return c.JSON(http.StatusOK, helper.FormatResponse(true, constant.CollectorGetSuccess, []interface{}{response}))
 	}
 }

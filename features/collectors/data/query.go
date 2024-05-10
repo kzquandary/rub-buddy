@@ -1,9 +1,9 @@
 package data
 
 import (
-	"errors"
 	"math/rand"
 	"rub_buddy/constant"
+	"rub_buddy/constant/tablename"
 	"rub_buddy/features/collectors"
 	"rub_buddy/helper"
 	"time"
@@ -24,13 +24,17 @@ func New(db *gorm.DB) collectors.CollectorDataInterface {
 func (data *CollectorsData) Register(newCollector collectors.Collectors) (*collectors.Collectors, error) {
 	_, err := data.GetCollectorByEmail(newCollector.Email)
 	if err == nil {
-		return nil, errors.New(constant.EmailAlreadyExists)
+		return nil, constant.ErrCollectorUserEmailExists
 	}
 
 	newCollector.CreatedAt = time.Now()
 	newCollector.UpdatedAt = time.Now()
 	newCollector.ID = uint(rand.Intn(900000) + 100000)
-	return &newCollector, data.DB.Create(&newCollector).Error
+	err = data.DB.Create(&newCollector).Error
+	if err != nil {
+		return nil, constant.ErrorCollectorRegister
+	}
+	return &newCollector, nil
 }
 
 func (data *CollectorsData) Login(email string, password string) (*collectors.Collectors, error) {
@@ -44,10 +48,10 @@ func (data *CollectorsData) Login(email string, password string) (*collectors.Co
 	collectorData.Count(&dataCount)
 
 	if dataCount == 0 {
-		return nil, errors.New(constant.NotFound)
+		return nil, constant.ErrCollectorUserNotFound
 	}
 	if !helper.CheckPasswordHash(password, collector.Password) {
-		return nil, errors.New(constant.IncorrectPassword)
+		return nil, constant.ErrCollectorIncorrectPassword
 	}
 
 	var result = new(collectors.Collectors)
@@ -59,38 +63,34 @@ func (data *CollectorsData) Login(email string, password string) (*collectors.Co
 	return result, nil
 }
 
-func (data *CollectorsData) GetCollector(collector *collectors.Collectors) error {
-	result := data.DB.Where("id = ?", collector.ID).First(&collector)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
-}
-
 func (data *CollectorsData) UpdateCollector(collector *collectors.CollectorUpdate) error {
 	var existingCollector collectors.Collectors
-	err := data.DB.Table("collectors").Where("id = ?", collector.ID).First(&existingCollector).Error
+	err := data.DB.Table(tablename.CollectorTableName).Where("id = ?", collector.ID).First(&existingCollector).Error
 	if err != nil {
-		return err
+		return constant.ErrCollectorUserNotFound
 	}
 
 	if collector.Email != existingCollector.Email {
 		var count int64
-		data.DB.Table("collectors").Where("email = ?", collector.Email).Count(&count)
+		data.DB.Table(tablename.CollectorTableName).Where("email = ?", collector.Email).Count(&count)
 		if count > 0 {
-			return errors.New(constant.EmailAlreadyExists)
+			return constant.ErrUpdateCollectorEmailExists
 		}
 	}
 
 	collector.UpdatedAt = time.Now()
-	return data.DB.Table("collectors").Where("id = ?", collector.ID).Updates(collector).Error
+	err = data.DB.Table(tablename.CollectorTableName).Where("id = ?", collector.ID).Updates(collector).Error
+	if err != nil {
+		return constant.ErrorUpdateCollector
+	}
+	return nil
 }
 
 func (data *CollectorsData) GetCollectorByEmail(email string) (*collectors.Collectors, error) {
 	var collector collectors.Collectors
-	result := data.DB.Where("email = ?", email).First(&collector)
-	if result.Error != nil {
-		return nil, result.Error
+	err := data.DB.Where("email = ?", email).First(&collector).Error
+	if err != nil {
+		return nil, constant.ErrCollectorUserNotFound
 	}
 	return &collector, nil
 }

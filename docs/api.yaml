@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Kzquandary Mini Project - OpenAPI 3.0
   description: |-
-    Mini Project for Alterra Academy with topic Rubbish Collection, user can create transaction, pickup, and chat. and collector can get transaction create transaction and chat
+    Mini Project for Alterra Academy with topic Rubbish Collection, user can create pickup request, topup balance, and chat. and collector can get transaction create transaction and chat
   contact:
     email: kaze@kzquandary.my.id
   version: 1.0.11
@@ -10,14 +10,16 @@ externalDocs:
   description: Find out more about Kzquandary
   url: http://kzquandary.my.id
 servers:
-  - url: https://miniproject.kzquandary.my.id/api/v1
+  - url: https://api.kzquandary.my.id/api/v1
 tags:
   - name: user
     description: Operations about user
-  - name: transaction
-    description: Operations about transaction
   - name: pickup
     description: Operations about pickup
+  - name: transaction
+    description: Operations about transaction
+  - name: payment
+    description: Operations about payment
   - name: chat
     description: Operations about chat
   - name: utils
@@ -80,9 +82,27 @@ paths:
                     type: boolean
                   message:
                     type: string
+                  data:
+                    type: array
+                example:
+                  status: false
+                  message: Email and password cannot be empty
+                  data: []
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
                 example:
                   status: false
                   message: Invalid email or password
+                  data: []
   /register:
     post:
       tags:
@@ -137,6 +157,7 @@ paths:
               example:
                 status: true
                 message: Register Success
+                data: []
         "400":
           description: Bad Request
           content:
@@ -150,7 +171,25 @@ paths:
                     type: string
                 example:
                   status: false
-                  message: Invalid email or password
+                  message: Email and password cannot be empty
+                  data: []
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                example:
+                  status: false
+                  message: User already exists
+                  data: []
   /pickup:
     post:
       tags:
@@ -168,6 +207,7 @@ paths:
               required:
                 - weight
                 - description
+                - image_url
               properties:
                 weight:
                   type: number
@@ -176,6 +216,7 @@ paths:
               example:
                 weight: 2
                 description: tolong ambil depan rumah
+                image: "https://storage.googleapis.com/kzquandary/rubbuddy/90472c83-70a2-47b1-acb4-fb2014e87decsamurai-anime-girl-katana-sci-fi-4k-wallpaper-uhdpaper.com-221@3@a.jpg"
       responses:
         "200":
           description: OK
@@ -196,6 +237,7 @@ paths:
               example:
                 status: true
                 message: Pickup Created
+                data: []
         "400":
           description: Bad Request
           content:
@@ -210,6 +252,7 @@ paths:
                 example:
                   status: false
                   message: Pickup Failed
+                  data: []
     get:
       tags:
         - pickup
@@ -236,24 +279,41 @@ paths:
                 status: true
                 message: Pickup Found
                 data:
-                  - id: 1234
-                    nama: kaze
-                    address: jalan raya cimahi
-                    phone: 08987654321
-                    weight: 2
-                    description: tolong ambil depan rumah
-                    earning: 6000
+                  - id: 484900
+                    nama: Kaze User
+                    address: Cimahi
+                    phone: 
+                    weight: 10
+                    description: Sample description
+                    earning: 30000
                     status: pending
-                    created_at: 2022-10-10 21:36:21
-                  - id: 1235
-                    nama: kaze
-                    address: jalan raya cimahi
-                    phone: 08987654321
-                    weight: 2
-                    description: tolong ambil depan rumah
-                    earning: 6000
+                    created_at: null
+                    image: "https://storage.googleapis.com/kzquandary/rubbuddy/21c20c7d-5acc-4667-b591-360d31acbb5esamurai-anime-girl-katana-sci-fi-4k-wallpaper-uhdpaper.com-221@3@a.jpg"
+                  - id: 671620
+                    nama: Kaze User
+                    address: Cimahi
+                    phone: 
+                    weight: 10.5
+                    description: Sample description
+                    earning: 31500
                     status: pending
-                    created_at: 2022-10-10 21:36:21
+                    created_at: null
+                    image: "https://storage.googleapis.com/kzquandary/rubbuddy/21c20c7d-5acc-4667-b591-360d31acbb5esamurai-anime-girl-katana-sci-fi-4k-wallpaper-uhdpaper.com-221@3@a.jpg"
+        "404":  
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Pickup not found
+                  data: []
   /pickup/{id}:
     get:
       tags:
@@ -288,17 +348,18 @@ paths:
                 status: true
                 message: Pickup Found
                 data:
-                  - id: 1234
-                    nama: kaze
-                    address: jalan raya cimahi
-                    phone: 08987654321
-                    weight: 2
-                    description: tolong ambil depan rumah
-                    earning: 6000
+                  - id: 484900
+                    nama: Kaze User
+                    address: Cimahi
+                    phone: 
+                    weight: 10
+                    description: Sample description
+                    earning: 30000
                     status: pending
-                    created_at: 2022-10-10 21:36:21
-        "400":
-          description: Bad Request
+                    created_at: null
+                    image: "https://storage.googleapis.com/kzquandary/rubbuddy/21c20c7d-5acc-4667-b591-360d31acbb5esamurai-anime-girl-katana-sci-fi-4k-wallpaper-uhdpaper.com-221@3@a.jpg"
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -310,7 +371,8 @@ paths:
                     type: string
                 example:
                   status: false
-                  message: Gagal mendapatkan pickup
+                  message: Pickup not found
+                  data: []
     delete:
       tags:
         - pickup
@@ -343,8 +405,9 @@ paths:
               example:
                 status: true
                 message: Pickup Deleted
-        "400":
-          description: Bad Request
+                data: []
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -357,6 +420,7 @@ paths:
               example:
                 status: false
                 message: Gagal menghapus pickup
+                data: []
   /transaction:
     post:
       tags:
@@ -394,7 +458,11 @@ paths:
                     type: array
               example:
                 status: true
-                message: Transaction Created
+                message: Pickup Transaction Created
+                data: 
+                - id: 716553
+                  pickup_request_id: 484900
+                  pickup_time: "2024-05-09T22:21:00Z"
         "400":
           description: Bad Request
           content:
@@ -408,7 +476,8 @@ paths:
                     type: string
                 example:
                   status: false
-                  message: Transaction Failed
+                  message: Pickup Transaction Failed
+                  data: []
     get:
       tags:
         - transaction
@@ -435,22 +504,31 @@ paths:
                 status: true
                 message: Transaction Found
                 data:
-                  - pickup_transaction_id: 1234
-                    pickup_request_id: 1234
-                    nama: kaze
-                    collector: nurfaid
-                    address: jalan raya cimahi
-                    destination: jalan raya cimahi
-                    pickup_time: 2022-10-10 21:36:21
-                  - pickup_transaction_id: 1234
-                    pickup_request_id: 1234
-                    nama: kaze
-                    collector: nurfaid
-                    address: jalan raya cimahi
-                    destination: jalan raya cimahi
-                    pickup_time: 2022-10-10 21:36:21
-        "400":
-          description: Bad Request
+                  status: true
+                  message: Pickup Transaction Found
+                  data:
+                    - id: 716553
+                      user:
+                        id: 239549
+                        name: Kaze User
+                        address: Cimahi
+                      collector:
+                        id: 958063
+                        name: Kaze Collector
+                      pickup_time: "2024-05-09T22:21:00Z"
+                      tps_id: 1
+                    - id: 716551
+                      user:
+                        id: 239549
+                        name: Kaze User
+                        address: Cimahi
+                      collector:
+                        id: 958063
+                        name: Kaze Collector
+                      pickup_time: "2024-05-09T22:21:00Z"
+                      tps_id: 1
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -462,7 +540,8 @@ paths:
                     type: string
                 example:
                   status: false
-                  message: Transaction Failed
+                  message: Transaction not found
+                  data: []
   /transaction/{id}:
     get:
       tags:
@@ -471,7 +550,7 @@ paths:
       description: Collector mendapatkan transaction
       operationId: getTransaction
       security:
-        - bearerAuth: []
+        - Bearer: []
       parameters:
         - name: id
           in: path
@@ -497,15 +576,21 @@ paths:
                 status: true
                 message: Transaction Found
                 data:
-                  - pickup_transaction_id: 1234
-                    pickup_request_id: 1234
-                    nama: kaze
-                    collector: nurfaid
-                    address: jalan raya cimahi
-                    destination: jalan raya cimahi
-                    pickup_time: 2022-10-10 21:36:21
-        "400":
-          description: Bad Request
+                  status: true
+                  message: Pickup Transaction Found
+                  data:
+                    - id: 716553
+                      user:
+                        id: 239549
+                        name: Kaze User
+                        address: Cimahi
+                      collector:
+                        id: 958063
+                        name: Kaze Collector
+                      pickup_time: "2024-05-09T22:21:00Z"
+                      tps_id: 1
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -517,32 +602,67 @@ paths:
                     type: string
                 example:
                   status: false
-                  message: Transaction Failed
-  /chat:
+                  message: Transaction not found
+                  data: []
+  /payments:
     post:
       tags:
-        - chat
-      summary: Create Chat
-      description: User membuat chat
-      operationId: chat
+        - payment
+      summary: User melakukan Topup Saldo
+      description: User melakukan Topup Saldo
+      operationId: createPayment
       security:
-        - bearerAuth: []
+        - Bearer: []
       requestBody:
         content:
           application/json:
             schema:
               type: object
               required:
-                - pickup_transaction_id
-                - message
+                - amount
               properties:
-                pickup_transaction_id:
-                  type: string
-                message:
-                  type: string
+                amount:
+                  type: number
               example:
-                pickup_transaction_id: 1234
-                message: hello
+                amount: 100000
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                example:
+                  status: true
+                  message: Payment Created
+                  data: 
+                    - order_id: "106b83bd-8aa7-457c-b1f9-7fcdbe636a57"
+                      user_id: 239549
+                      amount: 100000
+                      snap_url: "https://app.sandbox.midtrans.com/snap/v4/redirection/e91d9403-e920-4b95-a9e1-cacea6bd4274"
+  /payments/verify/{order_id}:
+    get:
+      tags:
+        - payment
+      summary: Verify Payment
+      description: Verify Payment
+      operationId: verifyPayment
+      security:
+        - Bearer: []
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 106b83bd-8aa7-457c-b1f9-7fcdbe636a57
       responses:
         "200":
           description: OK
@@ -557,9 +677,25 @@ paths:
                     type: string
                   data:
                     type: array
-              example:
-                status: true
-                message: Chat Created
+                example:
+                  status: true
+                  message: Payment Verified
+                  data: []
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Payment not found
+                  data: []
         "400":
           description: Bad Request
           content:
@@ -573,51 +709,8 @@ paths:
                     type: string
                 example:
                   status: false
-                  message: Chat Failed
-  /chat/{pickup_transaction_id}:
-    get:
-      tags:
-        - chat
-      summary: Get Chat
-      description: User mendapatkan chat
-      operationId: getChat
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: pickup_transaction_id
-          in: path
-          required: true
-          schema:
-            type: string
-          example: 1234
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-              example:
-                status: true
-                message: Chat Found
-                data:
-                  - message_id: 1234
-                    sender: kaze
-                    receiver: nurfaid
-                    message: hello
-                    created_at: 2022-10-10 21:36:21
-                  - message_id: 1235
-                    sender: nurfaid
-                    receiver: kaze
-                    message: hello
-                    created_at: 2022-10-10 21:36:21
+                  message: Payment already verified
+                  data: []
   /media/upload:
     post:
       tags:
@@ -626,7 +719,7 @@ paths:
       description: User upload media
       operationId: uploadMedia
       security:
-        - bearerAuth: []
+        - Bearer: []
       requestBody:
         content:
           multipart/form-data:
@@ -658,7 +751,7 @@ paths:
                   status: true
                   message: Media Uploaded
                   data:
-                    - image_url: http://kzquandary.my.id/image.jpg
+                    - image_url: "https://storage.googleapis.com/kzquandary/rubbuddy/90472c83-70a2-47b1-acb4-fb2014e87decsamurai-anime-girl-katana-sci-fi-4k-wallpaper-uhdpaper.com-221@3@a.jpg"
         "400":
           description: Bad Request
           content:
@@ -673,4 +766,54 @@ paths:
                 example:
                   status: false
                   message: Upload Media Failed
-
+                  data: []
+  /chat:
+    get:
+      tags:
+        - chat
+      summary: Get Chat
+      description: Get Chat
+      operationId: getChat
+      security:
+        - Bearer: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                example:
+                  status: true
+                  message: Get Chat Success
+                  data: 
+                  - chat_id : 475645
+                    pickup_transaction_id : 475356
+                    user :
+                      - user_id : 239549
+                        user_name : Kaze User
+                    collector :
+                      - collector_id : 958063
+                        collector_name : Kaze Collector
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Chat not found
+                  data: []

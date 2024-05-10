@@ -8,31 +8,33 @@ import (
 )
 
 type User struct {
-	ID        uint          `json:"id"`
-	Name      string        `json:"name"`
-	Email     string        `json:"email"`
-	Password  string        `json:"password"`
-	Address   string        `json:"address"`
-	Gender    string        `json:"gender"`
-	CreatedAt time.Time     `json:"created_at"`
-	UpdatedAt time.Time     `json:"updated_at"`
-	DeletedAt *sql.NullTime `json:"deleted_at"`
+	ID        uint
+	Name      string
+	Email     string
+	Password  string
+	Address   string
+	Gender    string
+	Balance   int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *sql.NullTime
 }
 
 type UserUpdate struct {
-	ID        uint      `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
-	Address   string    `json:"address"`
-	Gender    string    `json:"gender"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint
+	Name      string
+	Email     string
+	Password  string
+	Address   string
+	Gender    string
+	Balance   int64
+	UpdatedAt time.Time
 }
 
 type UserCredentials struct {
-	ID    uint   `json:"id"`
-	Email string `json:"email"`
-	Token any    `json:"token"`
+	ID    uint
+	Email string
+	Token any
 }
 
 type UserHandlerInterface interface {
@@ -45,7 +47,6 @@ type UserHandlerInterface interface {
 type UserServiceInterface interface {
 	Register(newUser User) (*User, error)
 	Login(email string, password string) (*UserCredentials, error)
-	GetUser(user *User) error
 	GetUserByEmail(email string) (*User, error)
 	UpdateUser(user *UserUpdate) error
 }
@@ -53,7 +54,6 @@ type UserServiceInterface interface {
 type UserDataInterface interface {
 	Register(user User) (*User, error)
 	Login(email string, password string) (*User, error)
-	GetUser(user *User) error
 	UpdateUser(user *UserUpdate) error
 	GetUserByEmail(email string) (*User, error)
 }

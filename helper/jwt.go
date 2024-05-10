@@ -3,6 +3,7 @@ package helper
 import (
 	"fmt"
 	"net/http"
+	"rub_buddy/constant"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -32,7 +33,7 @@ func New(signKey string) JWTInterface {
 func (j *JWT) GenerateJWT(userID uint, role string, email string, address string) (string, error) {
 	var accessToken = j.GenerateToken(userID, role, email, address)
 	if accessToken == "" {
-		return "", fmt.Errorf("failed to generate access token")
+		return "", constant.ErrLoginJWT
 	}
 
 	return accessToken, nil
@@ -40,12 +41,12 @@ func (j *JWT) GenerateJWT(userID uint, role string, email string, address string
 
 func (j *JWT) GenerateToken(id uint, role string, email string, address string) string {
 	var claims = jwt.MapClaims{}
-	claims["id"] = id
-	claims["role"] = role
-	claims["email"] = email
-	claims["address"] = address
-	claims["iat"] = time.Now().Unix()
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	claims[constant.JWT_ID] = id
+	claims[constant.JWT_ROLE] = role
+	claims[constant.JWT_EMAIL] = email
+	claims[constant.JWT_ADDRESS] = address
+	claims[constant.JWT_IAT] = time.Now().Unix()
+	claims[constant.JWT_EXP] = time.Now().Add(time.Hour * 24).Unix()
 
 	var sign = jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	validToken, err := sign.SignedString([]byte(j.signKey))
@@ -64,13 +65,12 @@ func (j *JWT) ExtractToken(token *jwt.Token) map[string]interface{} {
 		if expTime.Time.Compare(time.Now()) > 0 {
 			var mapClaim = claims.(jwt.MapClaims)
 			var result = map[string]interface{}{}
-			result["id"] = uint(mapClaim["id"].(float64))
-			result["role"] = mapClaim["role"]
-			result["address"] = mapClaim["address"]
-			result["email"] = mapClaim["email"]
+			result[constant.JWT_ID] = uint(mapClaim[constant.JWT_ID].(float64))
+			result[constant.JWT_ROLE] = mapClaim[constant.JWT_ROLE]
+			result[constant.JWT_ADDRESS] = mapClaim[constant.JWT_ADDRESS]
+			result[constant.JWT_EMAIL] = mapClaim[constant.JWT_EMAIL]
 			return result
 		}
-		logrus.Error("Token Expired")
 		return nil
 	}
 	return nil
@@ -91,7 +91,7 @@ func (j *JWT) ValidateToken(token string) (*jwt.Token, error) {
 }
 
 func (j *JWT) GetID(c echo.Context) (uint, error) {
-	authHeader := c.Request().Header.Get("Authorization")
+	authHeader := c.Request().Header.Get(constant.HeaderAuthorization)
 
 	token, err := j.ValidateToken(authHeader)
 	if err != nil {
@@ -110,7 +110,7 @@ func (j *JWT) GetID(c echo.Context) (uint, error) {
 }
 
 func (j *JWT) CheckID(c echo.Context) any {
-	authHeader := c.Request().Header.Get("Authorization")
+	authHeader := c.Request().Header.Get(constant.HeaderAuthorization)
 
 	token, err := j.ValidateToken(authHeader)
 	if err != nil {

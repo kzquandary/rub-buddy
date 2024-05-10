@@ -30,11 +30,15 @@ var (
 	messages     = make(chan Message)
 )
 
+type SendMessageRequest struct {
+	ChatID  uint   `json:"chat_id"`
+	Content string `json:"content"`
+}
+
 type Websocket interface {
 	HandleConnection() echo.HandlerFunc
-	isChatIDExists(chatID uint64) bool
-	loadMessagesFromDB(chatID uint64, conn *websocket.Conn) error
-	HandleMessages()
+	isChatIDExists(chatID uint) bool
+	loadMessagesFromDB(chatID uint, conn *websocket.Conn) error
 	saveMessageToDB(msg Message) error
 	SendMessage() echo.HandlerFunc
 }
@@ -60,15 +64,53 @@ func (data *WebsocketData) HandleConnection() echo.HandlerFunc {
 		}
 
 		chatID := c.QueryParam("chat_id")
+		tokenString := c.Request().Header.Get("Authorization")
+
+		if chatID == "" || tokenString == "" {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, constant.BadRequest, nil))
+		}
+
+		token, err := data.j.ValidateToken(tokenString)
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
+		}
+
+		userData := data.j.ExtractToken(token)
+		userID := userData["id"].(uint)
 		chatIDInt, err := strconv.Atoi(chatID)
-		chatIDUint64 := uint64(chatIDInt)
+		chatIDUint := uint(chatIDInt)
 
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse(false, constant.BadRequest, nil))
 		}
 
-		if !data.isChatIDExists(uint64(chatIDInt)) {
-			return c.JSON(http.StatusNotFound, helper.FormatResponse(false, constant.NotFound, nil))
+		var chatInfo struct {
+			ChatID      uint `json:"chat_id"`
+			UserID      uint `json:"user_id"`
+			CollectorID uint `json:"collector_id"`
+		}
+		query := `SELECT c.id AS chat_id,
+			pr.user_id,
+			p.collector_id
+			FROM chats c
+			JOIN pickup_transactions p ON c.pickup_transaction_id = p.id
+			JOIN pickup_requests pr ON p.pickup_request_id = pr.id
+			WHERE c.id = ?`
+		result := data.db.Raw(query, chatIDUint).Scan(&chatInfo)
+		if result.Error != nil {
+			return c.JSON(http.StatusNotFound, helper.FormatResponse(false, "Chat ID not found", nil))
+		}
+
+		var sender, receiver uint
+
+		if userID == chatInfo.UserID {
+			sender = userID
+			receiver = chatInfo.CollectorID
+		} else if userID == chatInfo.CollectorID {
+			sender = userID
+			receiver = chatInfo.UserID
+		} else {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
 		}
 
 		conn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
@@ -78,7 +120,7 @@ func (data *WebsocketData) HandleConnection() echo.HandlerFunc {
 
 		defer conn.Close()
 
-		err = data.loadMessagesFromDB(chatIDUint64, conn)
+		err = data.loadMessagesFromDB(chatIDUint, conn)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse(false, constant.InternalServerError, nil))
 		}
@@ -92,30 +134,29 @@ func (data *WebsocketData) HandleConnection() echo.HandlerFunc {
 				removeClient <- conn
 				break
 			}
+			msg.Sender = sender
+			msg.Receiver = receiver
+			msg.ChatID = chatIDUint
+
 			messages <- msg
 		}
-
 		return nil
 	}
 }
 
-func (data *WebsocketData) isChatIDExists(chatID uint64) bool {
+func (data *WebsocketData) isChatIDExists(chatID uint) bool {
 	var count int64
 	data.db.Model(&chat.Chat{}).Where("id = ?", chatID).Count(&count)
 	return count > 0
 }
 
-func (data *WebsocketData) loadMessagesFromDB(chatID uint64, conn *websocket.Conn) error {
-	// Query pesan dari database berdasarkan chat ID dan urutkan berdasarkan created_at
-	log.Println("chat ID before Find:", chatID)
+func (data *WebsocketData) loadMessagesFromDB(chatID uint, conn *websocket.Conn) error {
 
-	// Query pesan dari database berdasarkan chat ID dan urutkan berdasarkan created_at
 	var chatMessages []chatmessage.ChatMessage
 	result := data.db.Table("chat_messages").Where("chat_id = ?", chatID).Order("created_at ASC").Find(&chatMessages)
 	if result.Error != nil {
 		return result.Error
 	}
-
 
 	// Kirim pesan ke klien
 	for _, chatMsg := range chatMessages {
@@ -139,7 +180,6 @@ func (data *WebsocketData) HandleMessages() {
 	for {
 		select {
 		case msg := <-messages:
-			// Kirim pesan ke semua klien yang terhubung
 			for client := range clients {
 				err := client.WriteJSON(msg)
 				if err != nil {
@@ -149,23 +189,19 @@ func (data *WebsocketData) HandleMessages() {
 				}
 			}
 
-			// Simpan pesan ke database
 			err := data.saveMessageToDB(msg)
 			if err != nil {
 				log.Println("Database error:", err)
 			}
 		case client := <-addClient:
-			// Tambahkan klien baru ke daftar klien
 			clients[client] = struct{}{}
 		case client := <-removeClient:
-			// Hapus klien yang tidak aktif dari daftar klien
 			delete(clients, client)
 		}
 	}
 }
 
 func (data *WebsocketData) saveMessageToDB(msg Message) error {
-	// Cek apakah chat ID yang diberikan ada atau tidak
 	var chat chat.Chat
 	result := data.db.First(&chat, msg.ChatID)
 	if result.Error != nil {
@@ -223,7 +259,6 @@ func (data *WebsocketData) SendMessage() echo.HandlerFunc {
 			return c.JSON(http.StatusNotFound, helper.FormatResponse(false, "Chat ID not found", nil))
 		}
 
-		// Tentukan sender dan receiver berdasarkan user yang terkait
 		var sender, receiver uint
 		if userID == chatInfo.UserID {
 			sender = chatInfo.UserID
@@ -232,7 +267,6 @@ func (data *WebsocketData) SendMessage() echo.HandlerFunc {
 			sender = chatInfo.CollectorID
 			receiver = chatInfo.UserID
 		} else {
-			// User yang terkait tidak sesuai dengan data dari database
 			return c.JSON(http.StatusUnauthorized, helper.FormatResponse(false, "Unauthorized", nil))
 		}
 

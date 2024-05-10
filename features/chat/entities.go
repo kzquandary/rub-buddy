@@ -8,24 +8,30 @@ import (
 )
 
 type Chat struct {
-	ID                  uint          `json:"chat_id"`
-	PickupTransactionID uint          `json:"pickup_transaction_id"`
-	CreatedAt           time.Time     `json:"created_at"`
-	UpdatedAt           time.Time     `json:"updated_at"`
-	DeletedAt           *sql.NullTime `json:"deleted_at"`
+	ID                  uint
+	PickupTransactionID uint
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+	DeletedAt           *sql.NullTime
 }
 
+type ChatInfo struct {
+	ID                  uint
+	PickupTransactionID uint
+
+	UserID        uint
+	UserName      string
+	CollectorID   uint
+	CollectorName string
+}
 type ChatHandlerInterface interface {
-	Chat() echo.HandlerFunc
-	GetChatByID() echo.HandlerFunc
+	GetChat() echo.HandlerFunc
 }
 
 type ChatServiceInterface interface {
-	CreateChat(chat *Chat) (*Chat, error)
-	GetChatByID(chat *Chat) (*Chat, error)
+	GetChat(id uint, role string) ([]ChatInfo, error)
 }
 
 type ChatDataInterface interface {
-	CreateChat(chat *Chat) (*Chat, error)
-	GetChatByID(chat *Chat) (*Chat, error)
+	GetChat(id uint, role string) ([]ChatInfo, error)
 }

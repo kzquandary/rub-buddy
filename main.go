@@ -3,13 +3,18 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	cfg "rub_buddy/configs"
 	"rub_buddy/helper"
 	"rub_buddy/routes"
 	"rub_buddy/utils/bucket"
+	"rub_buddy/utils/chatbot"
+	"rub_buddy/utils/cronjob"
 	"rub_buddy/utils/database"
 	"rub_buddy/utils/websocket"
+
+	midtransData "rub_buddy/features/midtranspayment/data"
+	midtransHandler "rub_buddy/features/midtranspayment/handler"
+	midtransService "rub_buddy/features/midtranspayment/service"
 
 	dataUser "rub_buddy/features/users/data"
 	handlerUser "rub_buddy/features/users/handler"
@@ -27,7 +32,12 @@ import (
 	handlerPickupTransaction "rub_buddy/features/pickup_transaction/handler"
 	servicePickupTransaction "rub_buddy/features/pickup_transaction/service"
 
+	dataChats "rub_buddy/features/chat/data"
+	handlerChats "rub_buddy/features/chat/handler"
+	serviceChats "rub_buddy/features/chat/service"
+
 	"github.com/labstack/echo/v4"
+	"github.com/robfig/cron/v3"
 )
 
 func main() {
@@ -41,15 +51,27 @@ func main() {
 
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, "Hello, World!")
+		return c.File("index.html")
 	})
+	e.Static("/assets", "assets")
+	e.Static("/docs", "docs")
 	jwtInterface := helper.New(config.Secret)
 	websocketInterface := websocket.New(db, jwtInterface)
+	cronjobInterface := cronjob.New(db)
+	chatbotInterface := chatbot.New()
+
+	cron := cron.New()
+	cron.AddFunc("0 0 * * *", cronjobInterface.HandleDeletePickupRequest)
+	cron.Start()
 
 	bucketInterface, err := bucket.New(config.ProjectID, config.BucketName)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	midtransDataInterface := midtransData.New(db)
+	midtransService := midtransService.New(midtransDataInterface, config.Midtrans)
+	midtransHandler := midtransHandler.New(midtransService, jwtInterface)
 
 	userModel := dataUser.New(db)
 	userService := serviceUser.New(userModel, jwtInterface)
@@ -67,13 +89,19 @@ func main() {
 	pickupTransactionService := servicePickupTransaction.New(pickupTransactionModel)
 	pickupTransactionController := handlerPickupTransaction.NewHandler(pickupTransactionService, jwtInterface)
 
+	chatModel := dataChats.New(db)
+	chatService := serviceChats.New(chatModel)
+	chatController := handlerChats.NewHandler(chatService, jwtInterface)
+
 	routes.RouteUser(e, userController, *config)
 	routes.RouteCollector(e, collectorController, *config)
 	routes.RoutePickup(e, pickupController, *config)
 	routes.RouteTransaction(e, pickupTransactionController, *config)
 	routes.RouteMedia(e, bucketInterface)
 	routes.RouteWebsocket(e, websocketInterface, *config)
-
+	routes.RouteChat(e, chatController, *config)
+	routes.RouteChatbot(e, chatbotInterface)
+	routes.RouteMidtrans(e, midtransHandler, *config)
 	if wsData, ok := websocketInterface.(*websocket.WebsocketData); ok {
 		go wsData.HandleMessages()
 	} else {

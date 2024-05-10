@@ -1,12 +1,9 @@
 package service
 
 import (
-	"errors"
 	"rub_buddy/constant"
 	"rub_buddy/features/collectors"
 	"rub_buddy/helper"
-	"strings"
-	"time"
 )
 
 type CollectorService struct {
@@ -22,34 +19,29 @@ func New(data collectors.CollectorDataInterface, jwt helper.JWTInterface) collec
 }
 
 func (s *CollectorService) Register(newCollector collectors.Collectors) (*collectors.Collectors, error) {
-	_, err := s.d.GetCollectorByEmail(newCollector.Email)
-	if err == nil {
-		return nil, errors.New(constant.EmailAlreadyExists)
+	if newCollector.Email == "" || newCollector.Password == "" || newCollector.Name == "" || newCollector.Gender == "" {
+		return nil, constant.ErrRegisterEmptyInput
 	}
-
 	result, err := s.d.Register(newCollector)
 	if err != nil {
-		return nil, errors.New("Internal server error")
+		return nil, err
 	}
 	return result, nil
 }
 
 func (s *CollectorService) Login(email string, password string) (*collectors.CollectorCredentials, error) {
+	if email == "" || password == "" {
+		return nil, constant.ErrLoginEmptyInput
+	}
 	result, err := s.d.Login(email, password)
 
 	if err != nil {
-		if strings.Contains(err.Error(), constant.NotFound) {
-			return nil, errors.New("User not found")
-		}
-		if strings.Contains(err.Error(), constant.IncorrectPassword) {
-			return nil, errors.New("Incorrect password")
-		}
-		return nil, errors.New("Internal server error")
+		return nil, err
 	}
 
-	token, err := s.j.GenerateJWT(result.ID, "Collector", result.Email, "")
+	token, err := s.j.GenerateJWT(result.ID, constant.RoleCollector, result.Email, "")
 	if err != nil {
-		return nil, errors.New("Internal server error")
+		return nil, err
 	}
 
 	response := new(collectors.CollectorCredentials)
@@ -60,12 +52,7 @@ func (s *CollectorService) Login(email string, password string) (*collectors.Col
 }
 
 func (s *CollectorService) UpdateCollector(collector *collectors.CollectorUpdate) error {
-	collector.UpdatedAt = time.Now()
 	return s.d.UpdateCollector(collector)
-}
-
-func (s *CollectorService) GetCollector(collector *collectors.Collectors) error {
-	return s.d.GetCollector(collector)
 }
 
 func (s *CollectorService) GetCollectorByEmail(email string) (*collectors.Collectors, error) {

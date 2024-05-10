@@ -1,6 +1,10 @@
 package data
 
-import "gorm.io/gorm"
+import (
+	"rub_buddy/constant/tablename"
+
+	"gorm.io/gorm"
+)
 
 type ChatMessage struct {
 	*gorm.Model
@@ -11,5 +15,5 @@ type ChatMessage struct {
 }
 
 func (ChatMessage) TableName() string {
-	return "chat_messages"
+	return tablename.ChatMessageTableName
 }

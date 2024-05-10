@@ -2,6 +2,8 @@ package data
 
 import (
 	"math/rand"
+	"rub_buddy/constant"
+	"rub_buddy/constant/tablename"
 	"rub_buddy/features/chat"
 	pickuptransaction "rub_buddy/features/pickup_transaction"
 	"time"
@@ -33,15 +35,15 @@ func (data *PickupTransactionData) CreatePickupTransaction(newPickupTransaction 
 	}
 
 	if query := data.DB.Create(&newPickupTransaction); query.Error != nil {
-		return nil, query.Error
+		return nil, constant.ErrPickupTransactionCreate
 	}
 
-	if createChat := data.DB.Table("chats").Create(&chat); createChat.Error != nil {
-		return nil, createChat.Error
+	if createChat := data.DB.Table(tablename.ChatTableName).Create(&chat); createChat.Error != nil {
+		return nil, constant.ErrPickupTransactionCreateChat
 	}
 
-	if updateStatus := data.DB.Table("pickup_requests").Where("id = ?", newPickupTransaction.PickupRequestID).Update("status", "Accepted"); updateStatus.Error != nil {
-		return nil, updateStatus.Error
+	if updateStatus := data.DB.Table(tablename.PickupRequestTableName).Where("id = ?", newPickupTransaction.PickupRequestID).Update("status", tablename.TablePickupRequestStatusAccepted); updateStatus.Error != nil {
+		return nil, constant.ErrPickupTransactionUpdateStatus
 	}
 
 	var TransactionCreateInfo = pickuptransaction.PickupTransactionCreate{
@@ -55,14 +57,38 @@ func (data *PickupTransactionData) CreatePickupTransaction(newPickupTransaction 
 	return &TransactionCreateInfo, nil
 }
 
-func (data *PickupTransactionData) GetAllPickupTransaction(userId uint) ([]pickuptransaction.PickupTransaction, error) {
-	var pickupTransactions []pickuptransaction.PickupTransaction
-	err := data.DB.Where("collector_id = ?", userId).Find(&pickupTransactions).Error
-	return pickupTransactions, err
+func (data *PickupTransactionData) GetAllPickupTransaction(userId uint) ([]pickuptransaction.PickupTransactionInfo, error) {
+	var pickupTransactions []pickuptransaction.PickupTransactionInfo
+
+	err := data.DB.Table(tablename.PickupTransactionTableName).
+		Select("pickup_transactions.id, pickup_requests.user_id, users.name as user_name, users.address as user_address, collectors.name as collector_name, pickup_transactions.collector_id, pickup_transactions.pickup_time, pickup_transactions.tps_id").
+		Joins("JOIN pickup_requests ON pickup_transactions.pickup_request_id = pickup_requests.id").
+		Joins("JOIN users ON pickup_requests.user_id = users.id").
+		Joins("JOIN collectors ON pickup_transactions.collector_id = collectors.id").
+		Where("pickup_transactions.collector_id = ?", userId).
+		Find(&pickupTransactions).Error
+
+	if err != nil {
+		return nil, constant.ErrPickupTransactionGet
+	}
+
+	return pickupTransactions, nil
 }
 
-func (data *PickupTransactionData) GetPickupTransactionByID(id int) (pickuptransaction.PickupTransaction, error) {
-	var pickupTransaction pickuptransaction.PickupTransaction
-	err := data.DB.Where("id = ?", id).First(&pickupTransaction).Error
-	return pickupTransaction, err
+func (data *PickupTransactionData) GetPickupTransactionByID(id int) (pickuptransaction.PickupTransactionInfo, error) {
+	var pickupTransactions pickuptransaction.PickupTransactionInfo
+
+	err := data.DB.Table(tablename.PickupTransactionTableName).
+		Select("pickup_transactions.id, pickup_requests.user_id, users.name as user_name, users.address as user_address, collectors.name as collector_name, pickup_transactions.collector_id, pickup_transactions.pickup_time, pickup_transactions.tps_id").
+		Joins("JOIN pickup_requests ON pickup_transactions.pickup_request_id = pickup_requests.id").
+		Joins("JOIN users ON pickup_requests.user_id = users.id").
+		Joins("JOIN collectors ON pickup_transactions.collector_id = collectors.id").
+		Where("pickup_transactions.id = ?", id).
+		Find(&pickupTransactions).Error
+
+	if err != nil {
+		return pickuptransaction.PickupTransactionInfo{}, constant.ErrPickupTransactionGet
+	}
+
+	return pickupTransactions, nil
 }

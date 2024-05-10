@@ -12,9 +12,10 @@ type LoginResponse struct {
 }
 
 type UserInfoResponse struct {
-	ID       uint   `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Address  string `json:"address"`
-	Gender   string `json:"gender"`
+	ID      uint   `json:"id"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Address string `json:"address"`
+	Gender  string `json:"gender"`
+	Balance int64  `json:"balance"`
 }
