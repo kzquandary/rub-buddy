@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"log"
+	"rub_buddy/constant"
 	rubbuddychat "rub_buddy/features/chat"
 	"rub_buddy/helper"
 
@@ -22,16 +22,15 @@ func NewHandler(c rubbuddychat.ChatServiceInterface, j helper.JWTInterface) *Cha
 
 func (h *ChatHandler) GetChat() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		tokenString := c.Request().Header.Get("Authorization")
+		tokenString := c.Request().Header.Get(constant.HeaderAuthorization)
 		token, err := h.j.ValidateToken(tokenString)
 		if err != nil {
-			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
+			helper.UnauthorizedError(c)
 		}
 		userData := h.j.ExtractToken(token)
-		userId := userData["id"].(uint)
-		userRole := userData["role"].(string)
-		log.Print(userRole)
-		log.Print(userId)
+		userId := userData[constant.JWT_ID].(uint)
+		userRole := userData[constant.JWT_ROLE].(string)
+
 		query, err := h.c.GetChat(userId, userRole)
 		if err != nil {
 			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
@@ -55,6 +54,7 @@ func (h *ChatHandler) GetChat() echo.HandlerFunc {
 			chatInfo.Collector = collectorInfo
 			response = append(response, chatInfo)
 		}
-		return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(true, "Success", []interface{}{response}))
+
+		return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(true, constant.ChatGetSuccess, []interface{}{response}))
 	}
 }

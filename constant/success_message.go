@@ -25,3 +25,10 @@ const PickupTransactionCreateSuccess = "Create Pickup Transaction Success"
 const PickupTransactionGetSuccess = "Get Pickup Transaction Success"
 const PickupTransactionUpdateSuccess = "Update Pickup Transaction Success"
 const PickupTransactionDeleteSuccess = "Delete Pickup Transaction Success"
+
+// Payemnt Success Message
+const PAYMENT_CREATED = "Payment Created"
+const PAYMENT_VERIFIED = "Payment Verified"
+
+// Chat Success Message
+const ChatGetSuccess = "Get Chat Success"

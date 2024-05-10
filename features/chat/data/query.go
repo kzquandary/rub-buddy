@@ -1,8 +1,8 @@
 package data
 
 import (
-	"log"
 	"rub_buddy/constant"
+	"rub_buddy/constant/tablename"
 	rubbuddychat "rub_buddy/features/chat"
 
 	"gorm.io/gorm"
@@ -24,7 +24,7 @@ func (data *ChatData) GetChat(id uint, role string) ([]rubbuddychat.ChatInfo, er
 
 	if role == "User" {
 		err = data.DB.
-			Table("chats").
+			Table(tablename.ChatTableName).
 			Select("chats.id, chats.pickup_transaction_id, pickup_requests.user_id, users.name as user_name, pickup_transactions.collector_id, collectors.name as collector_name").
 			Joins("JOIN pickup_transactions ON pickup_transactions.id = chats.pickup_transaction_id").
 			Joins("JOIN pickup_requests ON pickup_requests.id = pickup_transactions.pickup_request_id").
@@ -35,7 +35,7 @@ func (data *ChatData) GetChat(id uint, role string) ([]rubbuddychat.ChatInfo, er
 			Error
 	} else if role == "Collector" {
 		err = data.DB.
-			Table("chats").
+			Table(tablename.ChatTableName).
 			Select("chats.id, chats.pickup_transaction_id, pickup_requests.user_id, users.name as user_name, pickup_transactions.collector_id, collectors.name as collector_name").
 			Joins("JOIN pickup_transactions ON pickup_transactions.id = chats.pickup_transaction_id").
 			Joins("JOIN pickup_requests ON pickup_requests.id = pickup_transactions.pickup_request_id").
@@ -47,9 +47,9 @@ func (data *ChatData) GetChat(id uint, role string) ([]rubbuddychat.ChatInfo, er
 	} else {
 		return nil, constant.ErrChatGet
 	}
-	log.Print(chats)
+
 	if err != nil {
-		return nil, err
+		return nil, constant.ErrChatGet
 	}
 
 	return chats, nil

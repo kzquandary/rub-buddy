@@ -45,7 +45,7 @@ func RouteTransaction(e *echo.Echo, th pickuptransaction.PickupTransactionHandle
 }
 
 func RouteChat(e *echo.Echo, ch chat.ChatHandlerInterface, cfg configs.ProgrammingConfig) {
-	e.GET(routesname.ChatBasePath, ch.GetChat(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET(routesname.GetChats, ch.GetChat(), echojwt.JWT([]byte(cfg.Secret)))
 }
 func RouteWebsocket(e *echo.Echo, wh websocket.Websocket, cfg configs.ProgrammingConfig) {
 	e.GET(routesname.ChatBasePath, wh.HandleConnection())

@@ -79,6 +79,10 @@ func ConvertResponseCode(err error) int {
 	case constant.ErrGetPaymentTransaction:
 		return http.StatusNotFound
 
+	// Chat Error
+	case constant.ErrChatGet:
+		return http.StatusNotFound
+
 	// Default
 	default:
 		return http.StatusInternalServerError
