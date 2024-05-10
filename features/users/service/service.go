@@ -42,6 +42,9 @@ func (s *UserService) Login(email string, password string) (*users.UserCredentia
 }
 
 func (s *UserService) Register(user users.User) (*users.User, error) {
+	if user.Email == "" || user.Password == "" || user.Address == "" || user.Name == "" || user.Gender == "" {
+		return nil, constant.ErrRegisterEmptyInput
+	}
 	result, err := s.d.Register(user)
 	if err != nil {
 		return nil, err

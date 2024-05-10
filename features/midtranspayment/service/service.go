@@ -21,6 +21,9 @@ func New(d midtranspayment.MidtransDataInterface, config configs.MidtransConfig)
 }
 
 func (s *MidtransService) GenerateSnapURL(payment midtranspayment.Midtrans) (midtranspayment.Midtrans, error) {
+	if payment.Amount == 0 {
+		return midtranspayment.Midtrans{}, constant.ErrPaymentEmptyInput
+	}
 	req := &snap.Request{
 		TransactionDetails: midtrans.TransactionDetails{
 			OrderID:  payment.ID,

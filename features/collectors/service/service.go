@@ -19,6 +19,9 @@ func New(data collectors.CollectorDataInterface, jwt helper.JWTInterface) collec
 }
 
 func (s *CollectorService) Register(newCollector collectors.Collectors) (*collectors.Collectors, error) {
+	if newCollector.Email == "" || newCollector.Password == "" || newCollector.Name == "" || newCollector.Gender == "" {
+		return nil, constant.ErrRegisterEmptyInput
+	}
 	result, err := s.d.Register(newCollector)
 	if err != nil {
 		return nil, err
@@ -27,6 +30,9 @@ func (s *CollectorService) Register(newCollector collectors.Collectors) (*collec
 }
 
 func (s *CollectorService) Login(email string, password string) (*collectors.CollectorCredentials, error) {
+	if email == "" || password == "" {
+		return nil, constant.ErrLoginEmptyInput
+	}
 	result, err := s.d.Login(email, password)
 
 	if err != nil {
