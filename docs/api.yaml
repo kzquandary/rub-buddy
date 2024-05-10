@@ -767,3 +767,53 @@ paths:
                   status: false
                   message: Upload Media Failed
                   data: []
+  /chat:
+    get:
+      tags:
+        - chat
+      summary: Get Chat
+      description: Get Chat
+      operationId: getChat
+      security:
+        - Bearer: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                example:
+                  status: true
+                  message: Get Chat Success
+                  data: 
+                  - chat_id : 475645
+                    pickup_transaction_id : 475356
+                    user :
+                      - user_id : 239549
+                        user_name : Kaze User
+                    collector :
+                      - collector_id : 958063
+                        collector_name : Kaze Collector
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Chat not found
+                  data: []

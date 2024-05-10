@@ -30,6 +30,8 @@ func ConvertResponseCode(err error) int {
 		return http.StatusConflict
 	case constant.ErrUpdateUser:
 		return http.StatusInternalServerError
+	case constant.ErrRegisterEmptyInput:
+		return http.StatusBadRequest
 
 	// Collector Error
 	case constant.ErrorCollectorRegister:
@@ -56,6 +58,8 @@ func ConvertResponseCode(err error) int {
 		return http.StatusInternalServerError
 	case constant.ErrPickupRequestDelete:
 		return http.StatusInternalServerError
+	case constant.ErrPickupRequestEmptyInput:
+		return http.StatusBadRequest
 
 	// Pickup Transaction Error
 	case constant.ErrPickupTransactionGet:
@@ -68,6 +72,8 @@ func ConvertResponseCode(err error) int {
 		return http.StatusInternalServerError
 	case constant.ErrPickupTransactionGetAll:
 		return http.StatusNotFound
+	case constant.ErrPickupTransactionEmptyInput:
+		return http.StatusBadRequest
 
 	// Payment Transaction Error
 	case constant.ErrAlreadyVerified:
@@ -78,6 +84,8 @@ func ConvertResponseCode(err error) int {
 		return http.StatusInternalServerError
 	case constant.ErrGetPaymentTransaction:
 		return http.StatusNotFound
+	case constant.ErrPaymentEmptyInput:
+		return http.StatusBadRequest
 
 	// Chat Error
 	case constant.ErrChatGet:

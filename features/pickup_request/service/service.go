@@ -16,6 +16,9 @@ func New(d pickuprequest.PickupRequestDataInterface) pickuprequest.PickupRequest
 }
 
 func (s *PickupRequestService) CreatePickupRequest(newData pickuprequest.PickupRequest) (*pickuprequest.PickupRequest, error) {
+	if newData.Weight == 0 || newData.Description == "" || newData.Image == "" {
+		return nil, constant.ErrPickupRequestEmptyInput
+	}
 	return s.d.CreatePickupRequest(&newData)
 }
 
