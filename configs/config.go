@@ -3,9 +3,6 @@ package configs
 import (
 	"os"
 	"strconv"
-
-	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 )
 
 type ProgrammingConfig struct {
@@ -28,11 +25,11 @@ type MidtransConfig struct {
 }
 
 func InitConfig() *ProgrammingConfig {
-	err := godotenv.Load()
-	if err != nil {
-		logrus.Error("Config: Cannot start program, failed to load .env file:", err)
-		return nil
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	logrus.Error("Config: Cannot start program, failed to load .env file:", err)
+	// 	return nil
+	// }
 	var res = new(ProgrammingConfig)
 
 	//Dev Mode
