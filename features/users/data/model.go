@@ -1,6 +1,8 @@
 package data
 
 import (
+	"rub_buddy/constant/tablename"
+
 	"gorm.io/gorm"
 )
 
@@ -15,5 +17,5 @@ type User struct {
 }
 
 func (User) TableName() string {
-	return "users"
+	return tablename.UserTableName
 }
