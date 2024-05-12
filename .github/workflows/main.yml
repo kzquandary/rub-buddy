@@ -32,12 +32,11 @@ jobs:
       run: |
         users_coverage=$(go test -cover ./features/users/service/... | tail -n1 | awk '{print $NF}' | tr -d '%')
         collectors_coverage=$(go test -cover ./features/collectors/service/... | tail -n1 | awk '{print $NF}' | tr -d '%')
-        pickup_transactions_coverage=$(go test -cover ./features/pickup_transactions/service/... | tail -n1 | awk '{print $NF}' | tr -d '%')
         pickup_transaction_coverage=$(go test -cover ./features/pickup_transaction/service/... | tail -n1 | awk '{print $NF}' | tr -d '%')
         pickup_request_coverage=$(go test -cover ./features/pickup_request/service/... | tail -n1 | awk '{print $NF}' | tr -d '%')
         chat_coverage=$(go test -cover ./features/chat/service/... | tail -n1 | awk '{print $NF}' | tr -d '%')
 
-        if [[ $users_coverage -ge 90 && $collectors_coverage -ge 90 && $pickup_transactions_coverage -ge 90 && $pickup_transaction_coverage -ge 90 && $pickup_request_coverage -ge 90 && $chat_coverage -ge 90 ]]; then
+        if [[ $users_coverage -ge 90 && $collectors_coverage -ge 90 &&  $pickup_transaction_coverage -ge 90 && $pickup_request_coverage -ge 90 && $chat_coverage -ge 90 ]]; then
           echo "All services have coverage above 90%, pushing is allowed."
         else
           echo "Some services have coverage below 90%, pushing is aborted."
