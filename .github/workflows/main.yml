@@ -32,18 +32,17 @@ jobs:
         go test -cover ./features/pickup_request/service/...
         go test -cover ./features/chat/service/...
 
-        - name: Check coverage
-        run: |
-          users_coverage=$(go test -cover ./features/users/service/... | grep -o '[0-9.]\+%' | cut -d'.' -f1 | tr -d '%')
-          collectors_coverage=$(go test -cover ./features/collectors/service/... | grep -o '[0-9.]\+%' | cut -d'.' -f1 | tr -d '%')
-          pickup_transaction_coverage=$(go test -cover ./features/pickup_transaction/service/... | grep -o '[0-9.]\+%' | cut -d'.' -f1 | tr -d '%')
-          pickup_request_coverage=$(go test -cover ./features/pickup_request/service/... | grep -o '[0-9.]\+%' | cut -d'.' -f1 | tr -d '%')
-          chat_coverage=$(go test -cover ./features/chat/service/... | grep -o '[0-9.]\+%' | cut -d'.' -f1 | tr -d '%')
-      
-          if [[ "$users_coverage" -ge 90 && "$collectors_coverage" -ge 90 &&  "$pickup_transaction_coverage" -ge 90 && "$pickup_request_coverage" -ge 90 && "$chat_coverage" -ge 90 ]]; then
-            echo "All services have coverage above 90%, pushing is allowed."
-          else
-            echo "Some services have coverage below 90%, pushing is aborted."
-            exit 1
-          fi
-      
+    - name: Check coverage
+      run: |
+        users_coverage=$(go test -cover ./features/users/service/... | grep -o '[0-9.]\+%' | cut -d'.' -f1 | tr -d '%')
+        collectors_coverage=$(go test -cover ./features/collectors/service/... | grep -o '[0-9.]\+%' | cut -d'.' -f1 | tr -d '%')
+        pickup_transaction_coverage=$(go test -cover ./features/pickup_transaction/service/... | grep -o '[0-9.]\+%' | cut -d'.' -f1 | tr -d '%')
+        pickup_request_coverage=$(go test -cover ./features/pickup_request/service/... | grep -o '[0-9.]\+%' | cut -d'.' -f1 | tr -d '%')
+        chat_coverage=$(go test -cover ./features/chat/service/... | grep -o '[0-9.]\+%' | cut -d'.' -f1 | tr -d '%')
+    
+        if [[ "$users_coverage" -ge 90 && "$collectors_coverage" -ge 90 &&  "$pickup_transaction_coverage" -ge 90 && "$pickup_request_coverage" -ge 90 && "$chat_coverage" -ge 90 ]]; then
+          echo "All services have coverage above 90%, pushing is allowed."
+        else
+          echo "Some services have coverage below 90%, pushing is aborted."
+          exit 1
+        fi
