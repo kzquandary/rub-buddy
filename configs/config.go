@@ -6,17 +6,22 @@ import (
 )
 
 type ProgrammingConfig struct {
-	ServerPort int
-	DBPort     int
-	DBHost     string
-	DBUser     string
-	DBPass     string
-	DBName     string
-	Secret     string
-	OpenAI     string
-	ProjectID  string
-	BucketName string
-	Midtrans   MidtransConfig
+	ServerPort             int
+	DBPort                 int
+	DBHost                 string
+	DBUser                 string
+	DBPass                 string
+	DBName                 string
+	DB_CLOUD_USER          string
+	DB_CLOUD_PASS          string
+	DB_CLOUD_DB            string
+	DB_CLOUD_INSTANCE_NAME string
+	DB_CLOUD_PRIVATE_IP    string
+	Secret                 string
+	OpenAI                 string
+	ProjectID              string
+	BucketName             string
+	Midtrans               MidtransConfig
 }
 
 type MidtransConfig struct {
@@ -27,8 +32,8 @@ type MidtransConfig struct {
 func InitConfig() *ProgrammingConfig {
 	// err := godotenv.Load()
 	// if err != nil {
-	// 	logrus.Error("Config: Cannot start program, failed to load .env file:", err)
-	// 	return nil
+		// 	logrus.Error("Config: Cannot start program, failed to load .env file:", err)
+		// 	return nil
 	// }
 	var res = new(ProgrammingConfig)
 
@@ -57,8 +62,12 @@ func InitConfig() *ProgrammingConfig {
 	res.OpenAI = os.Getenv("KEY_OPEN_AI")
 	res.ProjectID = os.Getenv("GOOGLE_PROJECT_ID")
 	res.BucketName = os.Getenv("GOOGLE_BUCKET_NAME")
+	res.DB_CLOUD_USER = os.Getenv("DB_CLOUD_USER")
+	res.DB_CLOUD_PASS = os.Getenv("DB_CLOUD_PASS")
+	res.DB_CLOUD_DB = os.Getenv("DB_CLOUD_DB")
+	res.DB_CLOUD_INSTANCE_NAME = os.Getenv("DB_CLOUD_INSTANCE_NAME")
+	res.DB_CLOUD_PRIVATE_IP = os.Getenv("PRIVATE_IP")
 	res.Midtrans.ClientKey = os.Getenv("MIDTRANS_CLIENT_KEY")
 	res.Midtrans.ServerKey = os.Getenv("MIDTRANS_SERVER_KEY")
-	res.Midtrans.ClientKey = os.Getenv("MIDTRANS_CLIENT_KEY")
 	return res
 }

@@ -140,7 +140,7 @@ func (h *UserHandler) UpdateUser() echo.HandlerFunc {
 			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
 		}
 
-		var response = new(UserInfoResponse)
+		var response = new(UserUpdateResponse)
 		response.ID = user.ID
 		response.Email = user.Email
 		response.Name = user.Name

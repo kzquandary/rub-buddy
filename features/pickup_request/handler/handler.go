@@ -67,12 +67,12 @@ func (h *PickupRequestHandler) GetAllPickupRequest() echo.HandlerFunc {
 		}
 
 		pickupRequestData := h.j.ExtractToken(token)
+		userId := pickupRequestData[constant.JWT_ID].(uint)
 		userRole := pickupRequestData[constant.JWT_ROLE].(string)
-		if userRole != constant.RoleCollector {
-			helper.UnauthorizedError(c)
-		}
-
-		pickupRequests, err := h.s.GetAllPickupRequest()
+		// if userRole != constant.RoleCollector {
+		// 	helper.UnauthorizedError(c)
+		// }
+		pickupRequests, err := h.s.GetAllPickupRequest(userRole, userId)
 		if err != nil {
 			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))
 		}
@@ -84,11 +84,12 @@ func (h *PickupRequestHandler) GetAllPickupRequest() echo.HandlerFunc {
 				Address:     pr.Address,
 				Description: pr.Description,
 				Earnings:    pr.Earnings,
+				Status:      pr.Status,
 				Image:       pr.Image,
 			}
 			userInfo := UserInfo{
 				ID:   pr.UserID,
-				Name: pr.UserName, 
+				Name: pr.UserName,
 			}
 			pickupRequestInfo.User = userInfo
 
@@ -119,6 +120,7 @@ func (h *PickupRequestHandler) GetPickupRequestByID() echo.HandlerFunc {
 		response.Address = pickupRequest.Address
 		response.Description = pickupRequest.Description
 		response.Earnings = pickupRequest.Earnings
+		response.Status = pickupRequest.Status
 		response.Image = pickupRequest.Image
 		userInfo := UserInfo{
 			ID:   pickupRequest.UserID,
@@ -153,7 +155,7 @@ func (h *PickupRequestHandler) DeletePickupRequestByID() echo.HandlerFunc {
 		if err != nil {
 			return c.JSON(helper.ConvertResponseCode(constant.ErrBadRequest), helper.FormatResponse(false, err.Error(), []interface{}{}))
 		}
-		
+
 		err = h.s.DeletePickupRequestByID(pickupRequestIDInt, UserID)
 		if err != nil {
 			return c.JSON(helper.ConvertResponseCode(err), helper.FormatResponse(false, err.Error(), []interface{}{}))

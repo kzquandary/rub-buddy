@@ -12,5 +12,6 @@ type PickupRequestInfo struct {
 	Address     string  `json:"address"`
 	Description string  `json:"description"`
 	Earnings    float64 `json:"earnings"`
+	Status      string  `json:"status"`
 	Image       string  `json:"image"`
 }

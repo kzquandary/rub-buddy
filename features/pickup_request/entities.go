@@ -44,14 +44,14 @@ type PickupRequestHandlerInterface interface {
 
 type PickupRequestServiceInterface interface {
 	CreatePickupRequest(newData PickupRequest) (*PickupRequest, error)
-	GetAllPickupRequest() ([]PickupRequestInfo, error)
+	GetAllPickupRequest(role string, id uint) ([]PickupRequestInfo, error)
 	GetPickupRequestByID(id int) (PickupRequestInfo, error)
 	DeletePickupRequestByID(id int, userID uint) error
 }
 
 type PickupRequestDataInterface interface {
 	CreatePickupRequest(newData *PickupRequest) (*PickupRequest, error)
-	GetAllPickupRequest() ([]PickupRequestInfo, error)
+	GetAllPickupRequest(role string, id uint) ([]PickupRequestInfo, error)
 	GetPickupRequestByID(id int) (PickupRequestInfo, error)
 	DeletePickupRequestByID(id int, userID uint) error
 }
