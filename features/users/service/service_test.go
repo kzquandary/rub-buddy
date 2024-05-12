@@ -95,7 +95,6 @@ func (m *MockUserData) UpdateUser(user *users.UserUpdate) error {
 		Password: user.Password,
 		Address:  user.Address,
 		Gender:   user.Gender,
-		Balance:  user.Balance,
 	}
 	m.Updated = true
 	return m.Err
@@ -162,4 +161,90 @@ func TestGetUserByEmailNotFound(t *testing.T) {
 	_, err := service.GetUserByEmail("notfound@example.com")
 	assert.Error(t, err)
 	assert.Equal(t, constant.UserNotFound, err)
+}
+func TestLoginSuccess(t *testing.T) {
+	mockUserData := &MockUserData{
+		Users: map[string]*users.User{
+			"john@example.com": {
+				Email:    "john@example.com",
+				Password: "password123",
+			},
+		},
+	}
+	mockJWT := &MockJWT{Token: "valid.token.here"}
+	service := New(mockUserData, mockJWT)
+	user, err := service.Login("john@example.com", "password123")
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
+}
+
+func TestRegisterUserExists(t *testing.T) {
+	mockUserData := &MockUserData{
+		Users: map[string]*users.User{
+			"existing@example.com": {
+				Email:    "existing@example.com",
+				Password: "password123",
+			},
+		},
+		Err: constant.ErrRegisterUserExists,
+	}
+	service := New(mockUserData, &MockJWT{})
+	newUser := users.User{
+		Email:    "existing@example.com",
+		Password: "newpassword",
+	}
+	_, err := service.Register(newUser)
+	assert.Error(t, err)
+	assert.Equal(t, constant.ErrRegisterEmptyInput, err)
+}
+
+func TestUpdateUserSuccess(t *testing.T) {
+	mockUserData := NewMockUserData()
+	mockUserData.Users["john@example.com"] = &users.User{
+		ID:       1,
+		Email:    "john@example.com",
+		Password: "password123",
+	}
+	service := New(mockUserData, &MockJWT{})
+	userUpdate := &users.UserUpdate{
+		ID:       1,
+		Email:    "john@example.com",
+		Password: "newpassword123",
+	}
+	err := service.UpdateUser(userUpdate)
+	assert.NoError(t, err)
+	assert.True(t, mockUserData.Updated)
+}
+
+func TestGetUserByEmailSuccess(t *testing.T) {
+	mockUserData := &MockUserData{
+		Users: map[string]*users.User{
+			"john@example.com": {
+				ID:       1,
+				Email:    "john@example.com",
+				Password: "password123",
+			},
+		},
+	}
+	service := New(mockUserData, &MockJWT{})
+	user, err := service.GetUserByEmail("john@example.com")
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
+	assert.Equal(t, "john@example.com", user.Email)
+}
+
+func TestJWTErrorOnLogin(t *testing.T) {
+	mockUserData := &MockUserData{
+		Users: map[string]*users.User{
+			"john@example.com": {
+				Email:    "john@example.com",
+				Password: "password123",
+			},
+		},
+	}
+	mockJWT := &MockJWT{Err: fmt.Errorf("JWT generation failed")}
+	service := New(mockUserData, mockJWT)
+	_, err := service.Login("john@example.com", "password123")
+	assert.Error(t, err)
+	assert.Equal(t, "JWT generation failed", err.Error())
 }

@@ -33,18 +33,32 @@ func (data *PickupRequestData) CreatePickupRequest(newPickupRequest *pickupreque
 	return newPickupRequest, nil
 }
 
-func (data *PickupRequestData) GetAllPickupRequest() ([]pickuprequest.PickupRequestInfo, error) {
+func (data *PickupRequestData) GetAllPickupRequest(role string, id uint) ([]pickuprequest.PickupRequestInfo, error) {
 	var pickupRequests []pickuprequest.PickupRequestInfo
-	err := data.DB.Table(tablename.PickupRequestTableName).
-		Select("pickup_requests.id, pickup_requests.user_id, users.name as user_name, pickup_requests.weight, pickup_requests.address, pickup_requests.description, pickup_requests.earnings, pickup_requests.image, pickup_requests.status").
-		Joins("JOIN users ON pickup_requests.user_id = users.id").
-		Where("pickup_requests.status = ?", tablename.TablePickupRequestStatusPending).
-		Scan(&pickupRequests).Error
+	var err error
+
+	if role == "Collector" {
+		err = data.DB.Table(tablename.PickupRequestTableName).
+			Select("pickup_requests.id, pickup_requests.user_id, users.name as user_name, pickup_requests.weight, pickup_requests.address, pickup_requests.description, pickup_requests.earnings, pickup_requests.image, pickup_requests.status").
+			Joins("JOIN users ON pickup_requests.user_id = users.id").
+			Where("pickup_requests.status = ?", tablename.TablePickupRequestStatusPending).
+			Scan(&pickupRequests).Error
+	} else if role == "User" {
+		err = data.DB.Table(tablename.PickupRequestTableName).
+			Select("pickup_requests.id, pickup_requests.user_id, users.name as user_name, pickup_requests.weight, pickup_requests.address, pickup_requests.description, pickup_requests.earnings, pickup_requests.image, pickup_requests.status").
+			Joins("JOIN users ON pickup_requests.user_id = users.id").
+			Where("pickup_requests.user_id = ?", id).
+			Scan(&pickupRequests).Error
+	} else {
+		return nil, constant.ErrPickupRequestGet
+	}
+
 	if err != nil {
 		return nil, constant.ErrPickupRequestGet
 	}
 	return pickupRequests, nil
 }
+
 
 func (data *PickupRequestData) GetPickupRequestByID(id int) (pickuprequest.PickupRequestInfo, error) {
 	var pickupRequest pickuprequest.PickupRequestInfo

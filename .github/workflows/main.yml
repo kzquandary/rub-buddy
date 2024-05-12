@@ -1,0 +1,45 @@
+name: Test and Coverage Check
+
+on:
+  push:
+    branches:
+      - main
+      - development
+
+jobs:
+  test-and-check-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.21'
+
+    - name: Run tests
+      run: |
+        go test -cover ./features/users/service/...
+        go test -cover ./features/collectors/service/...
+        go test -cover ./features/pickup_transactions/service/...
+        go test -cover ./features/pickup_transaction/service/...
+        go test -cover ./features/pickup_request/service/...
+        go test -cover ./features/chat/service/...
+
+    - name: Check coverage
+      run: |
+        users_coverage=$(go test -cover ./features/users/service/... | tail -n1 | awk '{print $NF}' | tr -d '%')
+        collectors_coverage=$(go test -cover ./features/collectors/service/... | tail -n1 | awk '{print $NF}' | tr -d '%')
+        pickup_transactions_coverage=$(go test -cover ./features/pickup_transactions/service/... | tail -n1 | awk '{print $NF}' | tr -d '%')
+        pickup_transaction_coverage=$(go test -cover ./features/pickup_transaction/service/... | tail -n1 | awk '{print $NF}' | tr -d '%')
+        pickup_request_coverage=$(go test -cover ./features/pickup_request/service/... | tail -n1 | awk '{print $NF}' | tr -d '%')
+        chat_coverage=$(go test -cover ./features/chat/service/... | tail -n1 | awk '{print $NF}' | tr -d '%')
+
+        if [[ $users_coverage -ge 90 && $collectors_coverage -ge 90 && $pickup_transactions_coverage -ge 90 && $pickup_transaction_coverage -ge 90 && $pickup_request_coverage -ge 90 && $chat_coverage -ge 90 ]]; then
+          echo "All services have coverage above 90%, pushing is allowed."
+        else
+          echo "Some services have coverage below 90%, pushing is aborted."
+          exit 1
+        fi

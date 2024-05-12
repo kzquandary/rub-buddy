@@ -8,11 +8,13 @@ info:
   version: 1.0.11
 externalDocs:
   description: Find out more about Kzquandary
-  url: http://kzquandary.my.id
+  url: https://kzquandary.my.id
 servers:
   - url: https://api.kzquandary.my.id/api/v1
 tags:
-  - name: user
+  - name: users
+    description: Operations about user
+  - name: collectors
     description: Operations about user
   - name: pickup
     description: Operations about pickup
@@ -26,87 +28,10 @@ tags:
     description: Operations about Utils API
 
 paths:
-  /login:
+  /users/register:
     post:
       tags:
-        - user
-      summary: Login User
-      description: User melakukan login menggunakan email dan username, dan mendapatkan response token
-      operationId: login
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - email
-                - password
-              properties:
-                email:
-                  type: string
-                password:
-                  type: string
-              example:
-                email: kaze@kzquandary.my.id
-                password: kzquandary
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    properties:
-                      token:
-                        type: string
-              example:
-                status: true
-                message: Login Success
-                data:
-                  - token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0MjUxMjI3OTI3NjI3NjQwOSIsImlhdCI6MTY4MzUxMjYyMiwiZXhwIjoxNjgzNTIwNjIyfQ.3Qw6nZ1Nl9L3zKq8UcF8ZI6BjB4sZ9aJ5rSfJY1w7gM
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: array
-                example:
-                  status: false
-                  message: Email and password cannot be empty
-                  data: []
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                  message:
-                    type: string
-                example:
-                  status: false
-                  message: Invalid email or password
-                  data: []
-  /register:
-    post:
-      tags:
-        - user
+        - users
       summary: Register User
       description: User melakukan register menggunakan email dan username, dan mendapatkan response token
       operationId: register
@@ -118,11 +43,16 @@ paths:
               required:
                 - email
                 - username
+                - name
                 - password
+                - address
+                - gender
               properties:
                 email:
                   type: string
                 password:
+                  type: string
+                name:
                   type: string
                 address:
                   type: string
@@ -132,8 +62,8 @@ paths:
                     - Laki-laki
                     - Perempuan
               example:
-                email: kaze@kzquandary.my.id
-                username: kaze
+                email: users@kzquandary.my.id
+                name: Kaze User
                 password: kzquandary
                 address: jalan raya cimahi
                 gender: Laki-laki
@@ -190,12 +120,438 @@ paths:
                   status: false
                   message: User already exists
                   data: []
-  /pickup:
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Login User
+      description: User melakukan login menggunakan email dan username, dan mendapatkan response token
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              example:
+                email: users@kzquandary.my.id
+                password: kzquandary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    properties:
+                      token:
+                        type: string
+              example:
+                status: true
+                message: Login Success
+                data:
+                  - token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0MjUxMjI3OTI3NjI3NjQwOSIsImlhdCI6MTY4MzUxMjYyMiwiZXhwIjoxNjgzNTIwNjIyfQ.3Qw6nZ1Nl9L3zKq8UcF8ZI6BjB4sZ9aJ5rSfJY1w7gM
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                example:
+                  status: false
+                  message: Email and password cannot be empty
+                  data: []
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Invalid email or password
+                  data: []
+  /users:
+    get:
+      tags:
+        - users
+      summary: Get User Profile
+      description: User mendapatkan profile user, untuk menggunakan route ini harus menggunakan token user
+      operationId: getUserProfile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                example:
+                  status: true
+                  message: Get User Success
+                  data:
+                    - id: 422344
+                      name: Kaze User
+                      email: user@kzquandary.my.id
+                      address: Cimahi
+                      gender: Laki-laki
+                      balance: 50000
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: missing or malformed jwt
+    put:
+      tags:
+        - users
+      summary: Update User
+      description: User melakukan update profile user, untuk menggunakan route ini harus menggunakan token user
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                address:
+                  type: string
+                gender:
+                  type: string
+                  enum:
+                    - Laki-laki
+                    - Perempuan
+              example:
+                name: Kaze User
+                email: users@kzquandary.my.id
+                address: Cimahi
+                gender: Laki-laki
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                example:
+                - id: 422344
+                  name: Kaze User
+                  email: users@kzquandary.my.id
+                  address: Cimahi
+                  gender: Laki-laki
+  /collectors/register:
+    post:
+      tags:
+        - collectors
+      summary: Register User
+      description: User melakukan register menggunakan email dan username, dan mendapatkan response token
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - name
+                - password
+                - gender
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                address:
+                  type: string
+                gender:
+                  type: string
+                  enum:
+                    - Laki-laki
+                    - Perempuan
+              example:
+                email: collectors@kzquandary.my.id
+                name: Kaze Collector
+                password: kzquandary
+                gender: Laki-laki
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    properties:
+                      token:
+                        type: string
+              example:
+                status: true
+                message: Register Success
+                data: []
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Email and password cannot be empty
+                  data: []
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                example:
+                  status: false
+                  message: User already exists
+                  data: []
+  /collectors/login:
+    post:
+      tags:
+        - collectors
+      summary: Login Collector
+      description: Collector melakukan login menggunakan email dan username, dan mendapatkan response token
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              example:
+                email: collectors@kzquandary.my.id
+                password: kzquandary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    properties:
+                      token:
+                        type: string
+              example:
+                status: true
+                message: Login Success
+                data:
+                  - token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0MjUxMjI3OTI3NjI3NjQwOSIsImlhdCI6MTY4MzUxMjYyMiwiZXhwIjoxNjgzNTIwNjIyfQ.3Qw6nZ1Nl9L3zKq8UcF8ZI6BjB4sZ9aJ5rSfJY1w7gM
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                example:
+                  status: false
+                  message: Email and password cannot be empty
+                  data: []
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                example:
+                  status: false
+                  message: Invalid email or password
+                  data: []
+  /collectors:
+    get:
+      tags:
+        - collectors
+      summary: Get Collector Profile
+      description: Collector mendapatkan profile collector, untuk menggunakan route ini harus menggunakan token collector
+      operationId: getCollectorProfile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                example:
+                  status: true
+                  message: Get User Success
+                  data:
+                    - id: 595850
+                      name: Kaze Collector
+                      email: collectors@kzquandary.my.id
+                      gender: Laki-laki
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: missing or malformed jwt
+    put:
+      tags:
+        - collectors
+      summary: Update Collector
+      description: Collector melakukan update profile collector, untuk menggunakan route ini harus menggunakan token collector
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                address:
+                  type: string
+                gender:
+                  type: string
+                  enum:
+                    - Laki-laki
+                    - Perempuan
+              example:
+                name: Kaze Collector
+                email: collectors@kzquandary.my.id
+                gender: Laki-laki
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                example:
+                - id: 595850
+                  name: Kaze Collector
+                  email: collectors@kzquandary.my.id
+                  gender: Laki-laki
+  /pickups:
     post:
       tags:
         - pickup
       summary: Create Pickup
-      description: User membuat pickup, harga normal pickup itu Rp. 3000 per kg
+      description: User membuat pickup, harga normal pickup itu Rp. 3000 per kg, untuk menggunakan route ini harus menggunakan token user
       operationId: pickup
       security:
         - bearerAuth: []
@@ -207,14 +563,16 @@ paths:
               required:
                 - weight
                 - description
-                - image_url
+                - image
               properties:
                 weight:
                   type: number
                 description:
                   type: string
+                image:
+                  type: string
               example:
-                weight: 2
+                weight: 8
                 description: tolong ambil depan rumah
                 image: "https://storage.googleapis.com/kzquandary/rubbuddy/90472c83-70a2-47b1-acb4-fb2014e87decsamurai-anime-girl-katana-sci-fi-4k-wallpaper-uhdpaper.com-221@3@a.jpg"
       responses:
@@ -257,7 +615,7 @@ paths:
       tags:
         - pickup
       summary: Get All Pickup
-      description: User mendapatkan semua pickup
+      description: User mendapatkan semua pickup, untuk menggunakan route ini harus menggunakan token collector
       operationId: getAllPickup
       security:
         - bearerAuth: []
@@ -279,26 +637,24 @@ paths:
                 status: true
                 message: Pickup Found
                 data:
-                  - id: 484900
-                    nama: Kaze User
-                    address: Cimahi
-                    phone: 
-                    weight: 10
-                    description: Sample description
-                    earning: 30000
-                    status: pending
-                    created_at: null
-                    image: "https://storage.googleapis.com/kzquandary/rubbuddy/21c20c7d-5acc-4667-b591-360d31acbb5esamurai-anime-girl-katana-sci-fi-4k-wallpaper-uhdpaper.com-221@3@a.jpg"
-                  - id: 671620
-                    nama: Kaze User
-                    address: Cimahi
-                    phone: 
+                  - pickup_request_id: 591981
+                    user:
+                      user_id: 422344
+                      user_name: "Kaze User"
                     weight: 10.5
-                    description: Sample description
-                    earning: 31500
-                    status: pending
-                    created_at: null
-                    image: "https://storage.googleapis.com/kzquandary/rubbuddy/21c20c7d-5acc-4667-b591-360d31acbb5esamurai-anime-girl-katana-sci-fi-4k-wallpaper-uhdpaper.com-221@3@a.jpg"
+                    address: "Cimahi"
+                    description: "Sample description"
+                    earnings: 31500
+                    image: "https://storage.googleapis.com/kzquandary/rubbuddy/90472c83-70a2-47b1-acb4-fb2014e87decsamurai-anime-girl-katana-sci-fi-4k-wallpaper-uhdpaper.com-221@3@a.jpg"
+                  - pickup_request_id: 686450
+                    user:
+                      user_id: 422344
+                      user_name: "Kaze User"
+                    weight: 10
+                    address: "Cimahi"
+                    description: "Sample description"
+                    earnings: 30000
+                    image: "https://storage.googleapis.com/kzquandary/rubbuddy/bfffa9a1-5a7e-4a44-8d4e-94dd9f9227a9samurai-anime-girl-katana-sci-fi-4k-wallpaper-uhdpaper.com-221@3@a.jpg"
         "404":  
           description: Not Found
           content:
@@ -314,7 +670,7 @@ paths:
                   status: false
                   message: Pickup not found
                   data: []
-  /pickup/{id}:
+  /pickups/{id}:
     get:
       tags:
         - pickup
@@ -348,16 +704,15 @@ paths:
                 status: true
                 message: Pickup Found
                 data:
-                  - id: 484900
-                    nama: Kaze User
-                    address: Cimahi
-                    phone: 
+                  - pickup_request_id: 686450
+                    user:
+                      user_id: 422344
+                      user_name: "Kaze User"
                     weight: 10
-                    description: Sample description
-                    earning: 30000
-                    status: pending
-                    created_at: null
-                    image: "https://storage.googleapis.com/kzquandary/rubbuddy/21c20c7d-5acc-4667-b591-360d31acbb5esamurai-anime-girl-katana-sci-fi-4k-wallpaper-uhdpaper.com-221@3@a.jpg"
+                    address: "Cimahi"
+                    description: "Sample description"
+                    earnings: 30000
+                    image: "https://storage.googleapis.com/kzquandary/rubbuddy/bfffa9a1-5a7e-4a44-8d4e-94dd9f9227a9samurai-anime-girl-katana-sci-fi-4k-wallpaper-uhdpaper.com-221@3@a.jpg"
         "404":
           description: Not Found
           content:
@@ -421,12 +776,12 @@ paths:
                 status: false
                 message: Gagal menghapus pickup
                 data: []
-  /transaction:
+  /transactions:
     post:
       tags:
         - transaction
       summary: Create Transaction
-      description: Collector melakukan pickup
+      description: Collector melakukan pickup, untuk menggunakan route ini harus menggunakan token collector
       operationId: transaction
       security:
         - bearerAuth: []
@@ -482,7 +837,7 @@ paths:
       tags:
         - transaction
       summary: Get Transaction
-      description: Collector mendapatkan transaction
+      description: Collector mendapatkan transaction, untuk menggunakan route ini harus menggunakan token collector
       operationId: getTransaction
       security:
         - bearerAuth: []
@@ -542,7 +897,7 @@ paths:
                   status: false
                   message: Transaction not found
                   data: []
-  /transaction/{id}:
+  /transactions/{id}:
     get:
       tags:
         - transaction
@@ -550,7 +905,7 @@ paths:
       description: Collector mendapatkan transaction
       operationId: getTransaction
       security:
-        - Bearer: []
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -612,7 +967,7 @@ paths:
       description: User melakukan Topup Saldo
       operationId: createPayment
       security:
-        - Bearer: []
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
@@ -655,7 +1010,7 @@ paths:
       description: Verify Payment
       operationId: verifyPayment
       security:
-        - Bearer: []
+        - bearerAuth: []
       parameters:
         - name: order_id
           in: path
@@ -719,16 +1074,16 @@ paths:
       description: User upload media
       operationId: uploadMedia
       security:
-        - Bearer: []
+        - bearerAuth: []
       requestBody:
         content:
           multipart/form-data:
             schema:
               type: object
               required:
-                - file
+                - image
               properties:
-                file:
+                image:
                   type: string
                   format: binary
               example:
@@ -767,7 +1122,7 @@ paths:
                   status: false
                   message: Upload Media Failed
                   data: []
-  /chat:
+  /chats:
     get:
       tags:
         - chat
@@ -775,7 +1130,7 @@ paths:
       description: Get Chat
       operationId: getChat
       security:
-        - Bearer: []
+        - bearerAuth: []
       responses:
         "200":
           description: OK
@@ -817,3 +1172,12 @@ paths:
                   status: false
                   message: Chat not found
                   data: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT  
+
+security:
+  - bearerAuth: []

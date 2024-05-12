@@ -5,9 +5,11 @@ go 1.22.0
 require (
 	cloud.google.com/go/storage v1.40.0
 	github.com/google/uuid v1.6.0
+	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/midtrans/midtrans-go v1.3.8
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/stretchr/testify v1.9.0
 	gorm.io/gorm v1.25.9
 )
 
@@ -28,7 +30,6 @@ require (
 	github.com/googleapis/gax-go/v2 v2.12.3 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.49.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
@@ -53,7 +54,6 @@ require (
 	github.com/gorilla/websocket v1.5.1
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo-jwt/v4 v4.2.0
 	github.com/labstack/gommon v0.4.2
 	github.com/mattn/go-colorable v0.1.13 // indirect

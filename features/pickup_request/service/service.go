@@ -22,8 +22,8 @@ func (s *PickupRequestService) CreatePickupRequest(newData pickuprequest.PickupR
 	return s.d.CreatePickupRequest(&newData)
 }
 
-func (s *PickupRequestService) GetAllPickupRequest() ([]pickuprequest.PickupRequestInfo, error) {
-	return s.d.GetAllPickupRequest()
+func (s *PickupRequestService) GetAllPickupRequest(role string, id uint) ([]pickuprequest.PickupRequestInfo, error) {
+	return s.d.GetAllPickupRequest(role, id)
 }
 
 func (s *PickupRequestService) GetPickupRequestByID(id int) (pickuprequest.PickupRequestInfo, error) {
