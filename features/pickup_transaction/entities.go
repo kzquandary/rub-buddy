@@ -39,6 +39,8 @@ type PickupTransactionInfo struct {
 	PickupTime    time.Time
 
 	TpsID uint
+	TpsName string
+	TpsAddress string
 }
 type PickupTransactionHandlerInterface interface {
 	CreatePickupTransaction() echo.HandlerFunc

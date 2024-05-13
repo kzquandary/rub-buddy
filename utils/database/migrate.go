@@ -8,6 +8,7 @@ import (
 	DataPickup "rub_buddy/features/pickup_request"
 	DataPickupTransaction "rub_buddy/features/pickup_transaction"
 	DataUsers "rub_buddy/features/users"
+	DataTPS "rub_buddy/utils/database/seed"
 
 	"gorm.io/gorm"
 )
@@ -20,5 +21,6 @@ func Migrate(db *gorm.DB) error {
 	db.AutoMigrate(DataChat.Chat{})
 	db.AutoMigrate(DataChatMessage.ChatMessage{})
 	db.AutoMigrate(DataPayment.Midtrans{})
+	db.AutoMigrate(DataTPS.TPS{})
 	return nil
 }

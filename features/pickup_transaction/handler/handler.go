@@ -90,7 +90,6 @@ func (h *PickupTransactionHandler) GetAllPickupTransaction() echo.HandlerFunc {
 			pickupTransactionInfo := PickupTransactionInfo{
 				ID:         pt.ID,
 				PickupTime: pt.PickupTime.Format(constant.ParseTime),
-				TpsID:      pt.TpsID,
 			}
 			userInfo := UserInfo{
 				ID:      pt.UserID,
@@ -101,8 +100,14 @@ func (h *PickupTransactionHandler) GetAllPickupTransaction() echo.HandlerFunc {
 				ID:   pt.CollectorID,
 				Name: pt.CollectorName,
 			}
+			tpsInfo := TPSInfo{
+				ID:      pt.TpsID,
+				Name:    pt.TpsName,
+				Address: pt.TpsAddress,
+			}
 			pickupTransactionInfo.User = userInfo
 			pickupTransactionInfo.Collector = collectorInfo
+			pickupTransactionInfo.Tps = tpsInfo
 			response = append(response, pickupTransactionInfo)
 		}
 		return c.JSON(http.StatusOK, helper.FormatResponse(true, constant.PickupTransactionGetSuccess, []interface{}{response}))
@@ -126,7 +131,6 @@ func (h *PickupTransactionHandler) GetPickupTransactionByID() echo.HandlerFunc {
 		var response = new(PickupTransactionInfo)
 		response.ID = pickupTransaction.ID
 		response.PickupTime = pickupTransaction.PickupTime.Format(constant.ParseTime)
-		response.TpsID = pickupTransaction.TpsID
 		response.User = UserInfo{
 			ID:      pickupTransaction.UserID,
 			Name:    pickupTransaction.UserName,
@@ -136,7 +140,11 @@ func (h *PickupTransactionHandler) GetPickupTransactionByID() echo.HandlerFunc {
 			ID:   pickupTransaction.CollectorID,
 			Name: pickupTransaction.CollectorName,
 		}
-
+		response.Tps = TPSInfo{
+			ID:      pickupTransaction.TpsID,
+			Name:    pickupTransaction.TpsName,
+			Address: pickupTransaction.TpsAddress,
+		}
 		return c.JSON(http.StatusOK, helper.FormatResponse(true, constant.PickupTransactionGetSuccess, []interface{}{response}))
 	}
 }

@@ -45,6 +45,9 @@ func main() {
 	db, err := database.InitDB(*config)
 
 	database.Migrate(db)
+	//Run 1 Time Only
+	// seed.SeedTPS(db)
+
 	if err != nil {
 		log.Fatal(err)
 	}

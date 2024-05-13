@@ -61,10 +61,11 @@ func (data *PickupTransactionData) GetAllPickupTransaction(userId uint) ([]picku
 	var pickupTransactions []pickuptransaction.PickupTransactionInfo
 
 	err := data.DB.Table(tablename.PickupTransactionTableName).
-		Select("pickup_transactions.id, pickup_requests.user_id, users.name as user_name, users.address as user_address, collectors.name as collector_name, pickup_transactions.collector_id, pickup_transactions.pickup_time, pickup_transactions.tps_id").
+		Select("pickup_transactions.id, pickup_requests.user_id, users.name as user_name, users.address as user_address, collectors.name as collector_name, pickup_transactions.collector_id, pickup_transactions.pickup_time, pickup_transactions.tps_id, tps.name as tps_name, tps.address as tps_address").
 		Joins("JOIN pickup_requests ON pickup_transactions.pickup_request_id = pickup_requests.id").
 		Joins("JOIN users ON pickup_requests.user_id = users.id").
 		Joins("JOIN collectors ON pickup_transactions.collector_id = collectors.id").
+		Joins("JOIN tps ON pickup_transactions.tps_id = tps.id").
 		Where("pickup_transactions.collector_id = ?", userId).
 		Find(&pickupTransactions).Error
 
@@ -79,10 +80,11 @@ func (data *PickupTransactionData) GetPickupTransactionByID(id int) (pickuptrans
 	var pickupTransactions pickuptransaction.PickupTransactionInfo
 
 	err := data.DB.Table(tablename.PickupTransactionTableName).
-		Select("pickup_transactions.id, pickup_requests.user_id, users.name as user_name, users.address as user_address, collectors.name as collector_name, pickup_transactions.collector_id, pickup_transactions.pickup_time, pickup_transactions.tps_id").
+		Select("pickup_transactions.id, pickup_requests.user_id, users.name as user_name, users.address as user_address, collectors.name as collector_name, pickup_transactions.collector_id, pickup_transactions.pickup_time, pickup_transactions.tps_id, tps.name as tps_name, tps.address as tps_address").
 		Joins("JOIN pickup_requests ON pickup_transactions.pickup_request_id = pickup_requests.id").
 		Joins("JOIN users ON pickup_requests.user_id = users.id").
 		Joins("JOIN collectors ON pickup_transactions.collector_id = collectors.id").
+		Joins("JOIN tps ON pickup_transactions.tps_id = tps.id").
 		Where("pickup_transactions.id = ?", id).
 		Find(&pickupTransactions).Error
 
