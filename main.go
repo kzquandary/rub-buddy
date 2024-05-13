@@ -47,7 +47,7 @@ func main() {
 	database.Migrate(db)
 	//Run 1 Time Only
 	// seed.SeedTPS(db)
-
+// a
 	if err != nil {
 		log.Fatal(err)
 	}
