@@ -10,7 +10,7 @@ type PickupTransactionInfo struct {
 	User       UserInfo      `json:"user"`
 	Collector  CollectorInfo `json:"collector"`
 	PickupTime string        `json:"pickup_time"`
-	TpsID      uint          `json:"tps_id"`
+	Tps        TPSInfo       `json:"tps"`
 }
 
 type UserInfo struct {
@@ -22,4 +22,10 @@ type UserInfo struct {
 type CollectorInfo struct {
 	ID   uint   `json:"collector_id"`
 	Name string `json:"collector_name"`
+}
+
+type TPSInfo struct {
+	ID      uint   `json:"tps_id"`
+	Name    string `json:"tps_name"`
+	Address string `json:"tps_address"`
 }

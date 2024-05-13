@@ -859,9 +859,6 @@ paths:
                 status: true
                 message: Transaction Found
                 data:
-                  status: true
-                  message: Pickup Transaction Found
-                  data:
                     - id: 716553
                       user:
                         id: 239549
@@ -870,8 +867,10 @@ paths:
                       collector:
                         id: 958063
                         name: Kaze Collector
+                      tps:
+                        id: 1
+                        name: TPS Cimahi
                       pickup_time: "2024-05-09T22:21:00Z"
-                      tps_id: 1
                     - id: 716551
                       user:
                         id: 239549
@@ -880,8 +879,10 @@ paths:
                       collector:
                         id: 958063
                         name: Kaze Collector
+                      tps:
+                        id: 1
+                        name: TPS Cimahi
                       pickup_time: "2024-05-09T22:21:00Z"
-                      tps_id: 1
         "404":
           description: Not Found
           content:
@@ -931,9 +932,6 @@ paths:
                 status: true
                 message: Transaction Found
                 data:
-                  status: true
-                  message: Pickup Transaction Found
-                  data:
                     - id: 716553
                       user:
                         id: 239549
@@ -943,7 +941,10 @@ paths:
                         id: 958063
                         name: Kaze Collector
                       pickup_time: "2024-05-09T22:21:00Z"
-                      tps_id: 1
+                      tps:
+                        id: 1
+                        name: TPS Cimahi
+                        address: Cimahi
         "404":
           description: Not Found
           content:
